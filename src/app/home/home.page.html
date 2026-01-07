@@ -1,0 +1,171 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      {{ getString('app.nome') }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ getString('app.nome') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="container">
+    <!-- Estatísticas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Estatísticas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="pricetags" color="primary"></ion-icon>
+                <div>
+                  <strong>{{ stats.totalCategorias }}</strong>
+                  <p>{{ getString('labels.categorias') }}</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="folder" color="secondary"></ion-icon>
+                <div>
+                  <strong>{{ stats.totalProjetos }}</strong>
+                  <p>{{ getString('labels.projetos') }}</p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="checkbox" color="tertiary"></ion-icon>
+                <div>
+                  <strong>{{ stats.totalTarefas }}</strong>
+                  <p>{{ getString('labels.tarefas') }}</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="stat-item" [class.tarefa-atraso]="stats.tarefasAtrasadas > 0">
+                <ion-icon name="alert-circle" [color]="stats.tarefasAtrasadas > 0 ? 'danger' : 'medium'"></ion-icon>
+                <div>
+                  <strong>{{ stats.tarefasAtrasadas }}</strong>
+                  <p>{{ getString('labels.emAtraso') }}</p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Categorias -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="pricetags"></ion-icon>
+          {{ getString('labels.categorias') }} ({{ categorias.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="loading" class="loading">
+          <ion-spinner></ion-spinner>
+          <p>A carregar...</p>
+        </div>
+        
+        <div *ngIf="!loading && categorias.length === 0" class="empty-state">
+          <ion-icon name="pricetags-outline" size="large"></ion-icon>
+          <p>Nenhuma categoria encontrada</p>
+        </div>
+
+        <ion-list *ngIf="!loading && categorias.length > 0">
+          <ion-item *ngFor="let categoria of categorias" [style.--color]="categoria.cor" button routerLink="/categorias">
+            <ion-icon [name]="categoria.icone" slot="start" [style.color]="categoria.cor"></ion-icon>
+            <ion-label>
+              <h2>{{ categoria.nome }}</h2>
+              <p>Criada em {{ categoria.dataCriacao | date:'dd/MM/yyyy' }}</p>
+            </ion-label>
+            <ion-badge [style.--background]="categoria.cor" slot="end">
+              {{ categoria.cor }}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+
+        <ion-button expand="block" fill="outline" routerLink="/categorias" *ngIf="!loading">
+          <ion-icon slot="start" name="list"></ion-icon>
+          Ver Todas as Categorias
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Projetos -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="folder"></ion-icon>
+          {{ getString('labels.projetos') }} ({{ projetos.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="!loading && projetos.length === 0" class="empty-state">
+          <ion-icon name="folder-outline" size="large"></ion-icon>
+          <p>Nenhum projeto encontrado</p>
+        </div>
+
+        <ion-list *ngIf="!loading && projetos.length > 0">
+          <ion-item *ngFor="let projeto of projetos">
+            <ion-label>
+              <h2>{{ projeto.nome }}</h2>
+              <p *ngIf="projeto.descricao">{{ projeto.descricao }}</p>
+              <p>Criado em {{ projeto.dataCriacao | date:'dd/MM/yyyy' }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tarefas em Atraso -->
+    <ion-card *ngIf="tarefasAtrasadas.length > 0" class="tarefa-atraso">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          {{ getString('labels.emAtraso') }} ({{ tarefasAtrasadas.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let tarefa of tarefasAtrasadas">
+            <ion-label>
+              <h2>{{ tarefa.titulo }}</h2>
+              <p *ngIf="tarefa.descricao">{{ tarefa.descricao }}</p>
+              <p>
+                <ion-icon name="calendar" size="small"></ion-icon>
+                Data limite: {{ tarefa.dataLimite | date:'dd/MM/yyyy' }}
+              </p>
+            </ion-label>
+            <ion-icon name="alert-circle" color="danger" slot="end"></ion-icon>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Informação -->
+    <ion-card color="light">
+      <ion-card-content>
+        <p><strong>Fase 2 Concluída!</strong></p>
+        <p>Os serviços estão funcionando e os dados foram carregados do JSON.</p>
+        <p>Próximo passo: Criar páginas de gestão (Fase 3).</p>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

@@ -1,0 +1,50 @@
+// For information on how to create your own theme, please refer to:
+// https://ionicframework.com/docs/theming/
+
+/**
+ * Cores Globais da Aplicação
+ * -----------------------------------------------------
+ * Cores customizadas disponíveis em toda a aplicação
+ */
+
+:root {
+  // Cores principais
+  --ion-color-primary: #3880ff;
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-tertiary: #5260ff;
+  --ion-color-success: #2dd36f;
+  --ion-color-warning: #ffc409;
+  --ion-color-danger: #eb445a;
+  --ion-color-dark: #222428;
+  --ion-color-medium: #92949c;
+  --ion-color-light: #f4f5f8;
+
+  // Cores customizadas para categorias
+  --cor-categoria-escola: #4caf50;
+  --cor-categoria-trabalho: #2196f3;
+  --cor-categoria-pessoal: #ff9800;
+  --cor-categoria-outros: #9c27b0;
+  
+  // Cores de estado para tarefas
+  --cor-tarefa-atraso: #eb445a;
+  --cor-tarefa-hoje: #ffc409;
+  --cor-tarefa-futura: #2dd36f;
+  --cor-tarefa-concluida: #92949c;
+  
+  // Espaçamentos globais
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  // Bordas
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  // Sombras
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

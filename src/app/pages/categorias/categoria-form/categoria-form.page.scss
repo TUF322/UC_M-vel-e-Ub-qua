@@ -1,0 +1,145 @@
+.form-container {
+  padding: 16px;
+  max-width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+.preview-container {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--ion-color-light);
+  border-radius: var(--border-radius-md);
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--ion-color-dark);
+  }
+
+  ion-item {
+    --background: white;
+    border-radius: var(--border-radius-md);
+  }
+}
+
+.icones-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+
+  .icone-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    border: 2px solid var(--ion-color-light);
+    border-radius: var(--border-radius-md);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    ion-icon {
+      font-size: 32px;
+    }
+
+    &:hover {
+      border-color: var(--ion-color-primary);
+      transform: scale(1.05);
+    }
+
+    &.selected {
+      border-color: var(--ion-color-primary);
+      border-width: 3px;
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+  }
+}
+
+.cores-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+
+  .cor-item {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-md);
+    }
+
+    &.selected {
+      border-color: var(--ion-color-dark);
+      border-width: 4px;
+      transform: scale(1.15);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}
+
+.actions-container {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+ion-card {
+  margin-bottom: 16px;
+
+  ion-card-header {
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+}
+
+ion-item {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin-bottom: 16px;
+
+  ion-label {
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .icones-grid,
+  .cores-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+

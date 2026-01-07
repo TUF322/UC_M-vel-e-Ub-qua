@@ -1,0 +1,102 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+/**
+ * Estilos Globais Personalizados
+ * -----------------------------------------------------
+ * Estilos aplicados globalmente na aplicação
+ */
+
+// Classes utilitárias para cores de categorias
+.categoria-escola {
+  --color: var(--cor-categoria-escola);
+  --background: #{rgba(76, 175, 80, 0.1)};
+}
+
+.categoria-trabalho {
+  --color: var(--cor-categoria-trabalho);
+  --background: #{rgba(33, 150, 243, 0.1)};
+}
+
+.categoria-pessoal {
+  --color: var(--cor-categoria-pessoal);
+  --background: #{rgba(255, 152, 0, 0.1)};
+}
+
+// Classes para estados de tarefas
+.tarefa-atraso {
+  --color: var(--cor-tarefa-atraso);
+  border-left: 4px solid var(--cor-tarefa-atraso);
+}
+
+.tarefa-hoje {
+  --color: var(--cor-tarefa-hoje);
+  border-left: 4px solid var(--cor-tarefa-hoje);
+}
+
+.tarefa-futura {
+  --color: var(--cor-tarefa-futura);
+}
+
+.tarefa-concluida {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+// Utilitários de espaçamento
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+// Utilitários de borda
+.rounded-sm { border-radius: var(--border-radius-sm); }
+.rounded-md { border-radius: var(--border-radius-md); }
+.rounded-lg { border-radius: var(--border-radius-lg); }
+
+// Utilitários de sombra
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }

@@ -1,0 +1,26 @@
+{
+  "categorias": [
+    {
+      "id": "cat-1",
+      "nome": "Escola",
+      "cor": "#4caf50",
+      "icone": "school",
+      "dataCriacao": "2025-01-07T00:00:00.000Z"
+    },
+    {
+      "id": "cat-2",
+      "nome": "Trabalho",
+      "cor": "#2196f3",
+      "icone": "briefcase",
+      "dataCriacao": "2025-01-07T00:00:00.000Z"
+    },
+    {
+      "id": "cat-3",
+      "nome": "Pessoal",
+      "cor": "#ff9800",
+      "icone": "person",
+      "dataCriacao": "2025-01-07T00:00:00.000Z"
+    }
+  ]
+}
+

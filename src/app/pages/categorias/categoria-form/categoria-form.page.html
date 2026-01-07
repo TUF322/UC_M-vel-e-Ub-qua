@@ -1,0 +1,131 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/categorias"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ isEditMode ? getString('labels.editar') : getString('labels.adicionar') }} 
+      {{ getString('labels.categorias') }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="salvar()" [disabled]="loading">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        {{ isEditMode ? getString('labels.editar') : getString('labels.adicionar') }} 
+        {{ getString('labels.categorias') }}
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="form-container">
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>A carregar...</p>
+    </div>
+
+    <!-- Formulário -->
+    <ion-card *ngIf="!loading">
+      <ion-card-header>
+        <ion-card-title>Informações da Categoria</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Campo Nome -->
+        <ion-item>
+          <ion-label position="stacked">{{ getString('labels.nome') }} *</ion-label>
+          <ion-input
+            [(ngModel)]="categoria.nome"
+            type="text"
+            placeholder="Ex: Escola, Trabalho, Pessoal"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <!-- Preview da Categoria -->
+        <div class="preview-container">
+          <h3>Pré-visualização</h3>
+          <ion-item [style.border-left]="'4px solid ' + categoria.cor">
+            <ion-icon 
+              [name]="categoria.icone" 
+              slot="start" 
+              [style.color]="categoria.cor" 
+              size="large"
+            ></ion-icon>
+            <ion-label>
+              <h2>{{ categoria.nome || 'Nome da Categoria' }}</h2>
+            </ion-label>
+            <ion-badge [style.--background]="categoria.cor" slot="end">
+              {{ categoria.cor }}
+            </ion-badge>
+          </ion-item>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Seleção de Ícone -->
+    <ion-card *ngIf="!loading">
+      <ion-card-header>
+        <ion-card-title>Selecionar Ícone</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="icones-grid">
+          <div
+            *ngFor="let icone of iconesDisponiveis"
+            class="icone-item"
+            [class.selected]="categoria.icone === icone"
+            (click)="selecionarIcone(icone)"
+          >
+            <ion-icon [name]="icone" [style.color]="categoria.cor"></ion-icon>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Seleção de Cor -->
+    <ion-card *ngIf="!loading">
+      <ion-card-header>
+        <ion-card-title>Selecionar Cor</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="cores-grid">
+          <div
+            *ngFor="let cor of coresPredefinidas"
+            class="cor-item"
+            [class.selected]="categoria.cor === cor"
+            [style.background-color]="cor"
+            (click)="selecionarCor(cor)"
+          ></div>
+        </div>
+        <ion-item>
+          <ion-label position="stacked">Cor Personalizada (Hex)</ion-label>
+          <ion-input
+            [(ngModel)]="categoria.cor"
+            type="text"
+            placeholder="#4caf50"
+            maxlength="7"
+          ></ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botões de Ação -->
+    <div class="actions-container" *ngIf="!loading">
+      <ion-button expand="block" (click)="salvar()" [disabled]="loading">
+        <ion-icon slot="start" name="checkmark"></ion-icon>
+        {{ getString('labels.salvar') }}
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="cancelar()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        {{ getString('labels.cancelar') }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

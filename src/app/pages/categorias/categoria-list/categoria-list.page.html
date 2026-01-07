@@ -1,0 +1,69 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ getString('labels.categorias') }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="adicionarCategoria()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ getString('labels.categorias') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar categorias...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && categorias.length === 0" class="empty-state">
+    <ion-icon name="pricetags-outline" size="large"></ion-icon>
+    <h2>Nenhuma categoria</h2>
+    <p>Adicione uma categoria para começar</p>
+    <ion-button (click)="adicionarCategoria()" color="primary">
+      <ion-icon slot="start" name="add"></ion-icon>
+      {{ getString('labels.adicionar') }} {{ getString('labels.categorias') }}
+    </ion-button>
+  </div>
+
+  <!-- Lista de Categorias -->
+  <ion-list *ngIf="!loading && categorias.length > 0">
+    <ion-item-sliding *ngFor="let categoria of categorias">
+      <ion-item [style.--color]="categoria.cor" [style.border-left]="'4px solid ' + categoria.cor">
+        <ion-icon [name]="categoria.icone" slot="start" [style.color]="categoria.cor" size="large"></ion-icon>
+        <ion-label>
+          <h2>{{ categoria.nome }}</h2>
+          <p>Criada em {{ categoria.dataCriacao | date:'dd/MM/yyyy' }}</p>
+        </ion-label>
+        <ion-badge [style.--background]="categoria.cor" slot="end">
+          {{ categoria.cor }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option (click)="editarCategoria(categoria)" color="primary">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+          {{ getString('labels.editar') }}
+        </ion-item-option>
+        <ion-item-option (click)="eliminarCategoria(categoria)" color="danger">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+          {{ getString('labels.eliminar') }}
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

@@ -1,0 +1,45 @@
+{
+  "app": {
+    "nome": "Gestão de Tarefas",
+    "versao": "1.0.0"
+  },
+  "mensagens": {
+    "sucesso": {
+      "salvo": "Salvo com sucesso!",
+      "eliminado": "Eliminado com sucesso!",
+      "atualizado": "Atualizado com sucesso!"
+    },
+    "erro": {
+      "geral": "Ocorreu um erro. Tente novamente.",
+      "camposObrigatorios": "Por favor, preencha todos os campos obrigatórios.",
+      "dataInvalida": "Data inválida.",
+      "categoriaEmUso": "Não é possível eliminar categoria com projetos associados."
+    },
+    "confirmacao": {
+      "eliminar": "Tem certeza que deseja eliminar?",
+      "eliminarProjeto": "Ao eliminar este projeto, todas as tarefas associadas serão eliminadas. Continuar?",
+      "eliminarTarefa": "Tem certeza que deseja eliminar esta tarefa?"
+    }
+  },
+  "labels": {
+    "categorias": "Categorias",
+    "projetos": "Projetos",
+    "tarefas": "Tarefas",
+    "calendario": "Calendário",
+    "adicionar": "Adicionar",
+    "editar": "Editar",
+    "eliminar": "Eliminar",
+    "salvar": "Salvar",
+    "cancelar": "Cancelar",
+    "nome": "Nome",
+    "descricao": "Descrição",
+    "dataLimite": "Data Limite",
+    "imagem": "Imagem",
+    "categoria": "Categoria",
+    "projeto": "Projeto",
+    "concluida": "Concluída",
+    "pendente": "Pendente",
+    "emAtraso": "Em Atraso"
+  }
+}
+
