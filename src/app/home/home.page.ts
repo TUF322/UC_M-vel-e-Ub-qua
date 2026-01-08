@@ -155,4 +155,22 @@ export class HomePage implements OnInit {
 
     return tarefaMaisProxima;
   }
+
+  /**
+   * Verifica se a data do próximo evento é hoje
+   * @returns true se a data atual é igual à data do próximo evento
+   */
+  isDataHoje(): boolean {
+    if (!this.tarefaMaisProxima) {
+      return false;
+    }
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const dataProxima = new Date(this.tarefaMaisProxima.dataLimite);
+    dataProxima.setHours(0, 0, 0, 0);
+
+    return hoje.getTime() === dataProxima.getTime();
+  }
 }

@@ -59,11 +59,21 @@
               </div>
             </ion-col>
             <ion-col size="6">
-              <div class="stat-item" [class.tarefa-atraso]="stats.tarefasAtrasadas > 0" button (click)="navegarPara('/calendario')">
-                <ion-icon name="alert-circle" [color]="stats.tarefasAtrasadas > 0 ? 'danger' : 'medium'"></ion-icon>
-                <div>
-                  <strong>{{ stats.tarefasAtrasadas }}</strong>
-                  <p>{{ getString('labels.emAtraso') }}</p>
+              <div class="stat-item stat-calendario" button (click)="navegarPara('/calendario')">
+                <ion-icon name="calendar" color="primary"></ion-icon>
+                <div class="stat-content">
+                  <div class="stat-calendario-info">
+                    <div class="calendario-data-item">
+                      <span class="data-label">Hoje:</span>
+                      <span class="data-valor">{{ dataAtual | date:'dd/MM' }}</span>
+                    </div>
+                    <div class="calendario-data-item" *ngIf="tarefaMaisProxima" 
+                         [class.data-hoje]="isDataHoje()"
+                         [class.data-futura]="!isDataHoje()">
+                      <span class="data-label">Próxima:</span>
+                      <span class="data-valor">{{ tarefaMaisProxima.dataLimite | date:'dd/MM' }}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </ion-col>

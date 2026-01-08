@@ -29,38 +29,62 @@
   ion-icon {
     font-size: 28px;
     color: var(--ion-color-primary);
+    flex-shrink: 0;
   }
 
-  div {
+  .stat-content {
     flex: 1;
+  }
 
-    strong {
-      display: block;
-      font-size: 28px;
-      font-weight: 700;
+  .stat-calendario-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .calendario-data-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+
+    .data-label {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 11px;
+      min-width: 60px;
+    }
+
+    .data-valor {
       color: var(--text-primary);
       font-family: var(--font-mono);
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
-    p {
-      margin: 0;
-      font-size: 12px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-family: var(--font-mono);
+    // Estilo quando a data é hoje (vermelho)
+    &.data-hoje {
+      .data-valor {
+        color: var(--ion-color-danger);
+      }
+    }
+
+    // Estilo quando ainda faltam dias (verde)
+    &.data-futura {
+      .data-valor {
+        color: var(--ion-color-success);
+      }
     }
   }
 
-  &.tarefa-atraso {
-    background: var(--bg-card);
-    border-left: 3px solid var(--ion-color-danger);
+  // Estilo específico para o card de calendário
+  &.stat-calendario {
+    align-items: flex-start;
     
-    &:hover {
-      border-left-color: var(--ion-color-danger);
-      box-shadow: 0 0 8px rgba(235, 68, 90, 0.3);
+    ion-icon {
+      margin-top: 4px;
     }
   }
 }
