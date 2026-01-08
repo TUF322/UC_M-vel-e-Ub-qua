@@ -1,5 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>
       {{ getString('app.nome') }}
     </ion-title>
@@ -27,7 +30,7 @@
         <ion-grid>
           <ion-row>
             <ion-col size="6">
-              <div class="stat-item">
+              <div class="stat-item" button (click)="navegarPara('/categorias')">
                 <ion-icon name="pricetags" color="primary"></ion-icon>
                 <div>
                   <strong>{{ stats.totalCategorias }}</strong>
@@ -36,8 +39,8 @@
               </div>
             </ion-col>
             <ion-col size="6">
-              <div class="stat-item">
-                <ion-icon name="folder" color="secondary"></ion-icon>
+              <div class="stat-item" button (click)="navegarPara('/projetos')">
+                <ion-icon name="folder" color="primary"></ion-icon>
                 <div>
                   <strong>{{ stats.totalProjetos }}</strong>
                   <p>{{ getString('labels.projetos') }}</p>
@@ -47,8 +50,8 @@
           </ion-row>
           <ion-row>
             <ion-col size="6">
-              <div class="stat-item">
-                <ion-icon name="checkbox" color="tertiary"></ion-icon>
+              <div class="stat-item" button (click)="navegarPara('/tarefas')">
+                <ion-icon name="checkbox" color="primary"></ion-icon>
                 <div>
                   <strong>{{ stats.totalTarefas }}</strong>
                   <p>{{ getString('labels.tarefas') }}</p>
@@ -56,7 +59,7 @@
               </div>
             </ion-col>
             <ion-col size="6">
-              <div class="stat-item" [class.tarefa-atraso]="stats.tarefasAtrasadas > 0">
+              <div class="stat-item" [class.tarefa-atraso]="stats.tarefasAtrasadas > 0" button (click)="navegarPara('/calendario')">
                 <ion-icon name="alert-circle" [color]="stats.tarefasAtrasadas > 0 ? 'danger' : 'medium'"></ion-icon>
                 <div>
                   <strong>{{ stats.tarefasAtrasadas }}</strong>
@@ -123,7 +126,7 @@
         </div>
 
         <ion-list *ngIf="!loading && projetos.length > 0">
-          <ion-item *ngFor="let projeto of projetos">
+          <ion-item *ngFor="let projeto of projetos" button routerLink="/projetos">
             <ion-label>
               <h2>{{ projeto.nome }}</h2>
               <p *ngIf="projeto.descricao">{{ projeto.descricao }}</p>
@@ -131,6 +134,11 @@
             </ion-label>
           </ion-item>
         </ion-list>
+
+        <ion-button expand="block" fill="outline" routerLink="/projetos" *ngIf="!loading">
+          <ion-icon slot="start" name="list"></ion-icon>
+          Ver Todos os Projetos
+        </ion-button>
       </ion-card-content>
     </ion-card>
 
@@ -143,12 +151,27 @@
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
+        <!-- Informações de Calendário -->
+        <div class="calendario-info" button (click)="navegarPara('/calendario')">
+          <ion-icon name="calendar" color="primary"></ion-icon>
+          <div class="calendario-datas">
+            <div class="data-item">
+              <span class="data-label">Hoje:</span>
+              <span class="data-valor">{{ dataAtual | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="data-item" *ngIf="tarefaMaisProxima">
+              <span class="data-label">Próxima:</span>
+              <span class="data-valor">{{ tarefaMaisProxima.dataLimite | date:'dd/MM/yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+
         <ion-list>
-          <ion-item *ngFor="let tarefa of tarefasAtrasadas">
+          <ion-item *ngFor="let tarefa of tarefasAtrasadas" button (click)="verTarefa(tarefa)">
             <ion-label>
               <h2>{{ tarefa.titulo }}</h2>
               <p *ngIf="tarefa.descricao">{{ tarefa.descricao }}</p>
-              <p>
+              <p class="console-text">
                 <ion-icon name="calendar" size="small"></ion-icon>
                 Data limite: {{ tarefa.dataLimite | date:'dd/MM/yyyy' }}
               </p>
@@ -156,15 +179,6 @@
             <ion-icon name="alert-circle" color="danger" slot="end"></ion-icon>
           </ion-item>
         </ion-list>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Informação -->
-    <ion-card color="light">
-      <ion-card-content>
-        <p><strong>Fase 2 Concluída!</strong></p>
-        <p>Os serviços estão funcionando e os dados foram carregados do JSON.</p>
-        <p>Próximo passo: Criar páginas de gestão (Fase 3).</p>
       </ion-card-content>
     </ion-card>
   </div>

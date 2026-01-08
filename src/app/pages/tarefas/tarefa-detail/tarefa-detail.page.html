@@ -1,0 +1,110 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="tarefa ? '/projetos/detalhes/' + tarefa.projetoId : '/projetos'"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ tarefa?.titulo || getString('labels.tarefas') }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editarTarefa()" *ngIf="tarefa">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+      <ion-button (click)="eliminarTarefa()" *ngIf="tarefa">
+        <ion-icon slot="icon-only" name="trash" color="danger"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ tarefa?.titulo || getString('labels.tarefas') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar tarefa...</p>
+  </div>
+
+  <!-- Conteúdo -->
+  <div *ngIf="!loading && tarefa" class="container">
+    <!-- Informações da Tarefa -->
+    <ion-card [class.tarefa-atraso]="isTarefaAtrasada() && !tarefa.concluida" [class.tarefa-concluida]="tarefa.concluida">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-checkbox 
+            [checked]="tarefa.concluida" 
+            (ionChange)="toggleConcluida()"
+            slot="start"
+          ></ion-checkbox>
+          {{ tarefa.titulo }}
+        </ion-card-title>
+        <ion-card-subtitle *ngIf="projeto">
+          Projeto: {{ projeto.nome }}
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p *ngIf="tarefa.descricao" class="descricao">{{ tarefa.descricao }}</p>
+        <p *ngIf="!tarefa.descricao" class="sem-descricao">Sem descrição</p>
+        
+        <div class="info-item">
+          <ion-icon name="calendar"></ion-icon>
+          <div>
+            <strong>{{ getString('labels.dataLimite') }}:</strong>
+            <p>{{ tarefa.dataLimite | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+
+        <div class="info-item" *ngIf="isTarefaAtrasada() && !tarefa.concluida">
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          <div>
+            <strong class="text-danger">{{ getString('labels.emAtraso') }}</strong>
+            <p>Esta tarefa está em atraso</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <ion-icon [name]="tarefa.concluida ? 'checkmark-circle' : 'time'" [color]="tarefa.concluida ? 'success' : 'warning'"></ion-icon>
+          <div>
+            <strong>{{ tarefa.concluida ? getString('labels.concluida') : getString('labels.pendente') }}</strong>
+            <p>Criada em {{ tarefa.dataCriacao | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Imagem -->
+    <ion-card *ngIf="tarefa.imagem">
+      <ion-card-header>
+        <ion-card-title>{{ getString('labels.imagem') }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <img [src]="tarefa.imagem" alt="Imagem da tarefa" class="tarefa-imagem" />
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Ações -->
+    <ion-card>
+      <ion-card-content>
+        <ion-button expand="block" (click)="editarTarefa()">
+          <ion-icon slot="start" name="create"></ion-icon>
+          {{ getString('labels.editar') }}
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="moverTarefa()">
+          <ion-icon slot="start" name="swap-horizontal"></ion-icon>
+          Mover para Outro Projeto
+        </ion-button>
+        <ion-button expand="block" fill="outline" color="danger" (click)="eliminarTarefa()">
+          <ion-icon slot="start" name="trash"></ion-icon>
+          {{ getString('labels.eliminar') }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

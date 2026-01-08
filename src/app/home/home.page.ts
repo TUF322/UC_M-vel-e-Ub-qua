@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
 import { ProjetoService } from '../services/projeto.service';
 import { TarefaService } from '../services/tarefa.service';
@@ -22,6 +23,8 @@ export class HomePage implements OnInit {
   projetos: Projeto[] = [];
   tarefas: Tarefa[] = [];
   tarefasAtrasadas: Tarefa[] = [];
+  tarefaMaisProxima: Tarefa | null = null;
+  dataAtual: Date = new Date();
   loading = true;
   stats = {
     totalCategorias: 0,
@@ -34,7 +37,8 @@ export class HomePage implements OnInit {
     private categoriaService: CategoriaService,
     private projetoService: ProjetoService,
     private tarefaService: TarefaService,
-    private stringService: StringService
+    private stringService: StringService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -59,6 +63,9 @@ export class HomePage implements OnInit {
       
       // Carrega tarefas em atraso
       this.tarefasAtrasadas = await this.tarefaService.getTarefasAtrasadas();
+
+      // Encontra a tarefa mais próxima da data atual
+      this.tarefaMaisProxima = this.encontrarTarefaMaisProxima();
 
       // Atualiza estatísticas
       this.stats = {
@@ -96,5 +103,56 @@ export class HomePage implements OnInit {
     if (event) {
       event.target.complete();
     }
+  }
+
+  /**
+   * Navega para uma rota específica
+   * @param rota - Rota para navegar
+   */
+  navegarPara(rota: string) {
+    this.router.navigate([rota]);
+  }
+
+  /**
+   * Navega para detalhes da tarefa
+   * @param tarefa - Tarefa para visualizar
+   */
+  verTarefa(tarefa: Tarefa) {
+    this.router.navigate(['/tarefas/detalhes', tarefa.id]);
+  }
+
+  /**
+   * Encontra a tarefa mais próxima da data atual
+   * Considera apenas tarefas não concluídas
+   * @returns Tarefa mais próxima ou null
+   */
+  encontrarTarefaMaisProxima(): Tarefa | null {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    // Filtra tarefas não concluídas
+    const tarefasPendentes = this.tarefas.filter(t => !t.concluida);
+
+    if (tarefasPendentes.length === 0) {
+      return null;
+    }
+
+    // Encontra a tarefa com data limite mais próxima (futura ou passada)
+    let tarefaMaisProxima: Tarefa | null = null;
+    let menorDiferenca: number = Infinity;
+
+    tarefasPendentes.forEach(tarefa => {
+      const dataLimite = new Date(tarefa.dataLimite);
+      dataLimite.setHours(0, 0, 0, 0);
+      
+      const diferenca = Math.abs(dataLimite.getTime() - hoje.getTime());
+
+      if (diferenca < menorDiferenca) {
+        menorDiferenca = diferenca;
+        tarefaMaisProxima = tarefa;
+      }
+    });
+
+    return tarefaMaisProxima;
   }
 }

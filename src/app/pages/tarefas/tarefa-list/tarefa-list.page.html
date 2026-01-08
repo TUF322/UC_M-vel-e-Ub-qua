@@ -1,0 +1,124 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button *ngIf="!projetoId"></ion-menu-button>
+      <ion-back-button *ngIf="projetoId" [defaultHref]="'/projetos/detalhes/' + projetoId"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ projeto ? projeto.nome : getString('labels.tarefas') }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="adicionarTarefa()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        {{ projeto ? projeto.nome : getString('labels.tarefas') }}
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Filtros -->
+  <ion-segment 
+    [(ngModel)]="filtroSelecionado" 
+    (ionChange)="filtrarTarefas($event)"
+    *ngIf="!loading"
+  >
+    <ion-segment-button value="todas">
+      <ion-label>Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="pendentes">
+      <ion-label>{{ getString('labels.pendente') }}</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="concluidas">
+      <ion-label>{{ getString('labels.concluida') }}</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="atrasadas">
+      <ion-label>{{ getString('labels.emAtraso') }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar tarefas...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && tarefasFiltradas.length === 0" class="empty-state">
+    <ion-icon name="checkbox-outline" size="large"></ion-icon>
+    <h2>Nenhuma tarefa</h2>
+    <p *ngIf="filtroSelecionado === 'todas'">Adicione uma tarefa para começar</p>
+    <p *ngIf="filtroSelecionado !== 'todas'">Nenhuma tarefa encontrada com este filtro</p>
+    <ion-button (click)="adicionarTarefa()" color="primary" *ngIf="filtroSelecionado === 'todas'">
+      <ion-icon slot="start" name="add"></ion-icon>
+      {{ getString('labels.adicionar') }} {{ getString('labels.tarefas') }}
+    </ion-button>
+  </div>
+
+  <!-- Lista de Tarefas -->
+  <ion-list *ngIf="!loading && tarefasFiltradas.length > 0">
+    <ion-item-sliding *ngFor="let tarefa of tarefasFiltradas">
+      <ion-item 
+        button
+        (click)="verDetalhes(tarefa)"
+        [class.tarefa-atraso]="isTarefaAtrasada(tarefa) && !tarefa.concluida"
+        [class.tarefa-concluida]="tarefa.concluida"
+      >
+        <ion-checkbox 
+          slot="start" 
+          [checked]="tarefa.concluida"
+          (click)="toggleConcluida(tarefa); $event.stopPropagation()"
+        ></ion-checkbox>
+        <ion-label>
+          <h2>{{ tarefa.titulo }}</h2>
+          <p *ngIf="tarefa.descricao">{{ tarefa.descricao }}</p>
+          <div class="tarefa-info">
+            <span>
+              <ion-icon name="calendar" size="small"></ion-icon>
+              {{ tarefa.dataLimite | date:'dd/MM/yyyy' }}
+            </span>
+            <span *ngIf="isTarefaAtrasada(tarefa) && !tarefa.concluida" class="atraso-badge">
+              <ion-icon name="alert-circle" size="small"></ion-icon>
+              {{ getString('labels.emAtraso') }}
+            </span>
+          </div>
+        </ion-label>
+        <ion-icon 
+          *ngIf="isTarefaAtrasada(tarefa) && !tarefa.concluida" 
+          name="alert-circle" 
+          color="danger" 
+          slot="end"
+        ></ion-icon>
+        <ion-button 
+          slot="end" 
+          fill="clear" 
+          (click)="mostrarAcoes(tarefa); $event.stopPropagation()"
+        >
+          <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option (click)="editarTarefa(tarefa)" color="primary">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+          {{ getString('labels.editar') }}
+        </ion-item-option>
+        <ion-item-option (click)="eliminarTarefa(tarefa)" color="danger">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+          {{ getString('labels.eliminar') }}
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

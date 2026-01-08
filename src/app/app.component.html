@@ -1,3 +1,49 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-menu side="start" menuId="main-menu" contentId="main-content">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/home" routerDirection="root">
+            <ion-icon slot="start" name="home"></ion-icon>
+            <ion-label>Início</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/projetos" routerDirection="root">
+            <ion-icon slot="start" name="folder"></ion-icon>
+            <ion-label>Projetos</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/tarefas" routerDirection="root">
+            <ion-icon slot="start" name="checkbox"></ion-icon>
+            <ion-label>Tarefas</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/calendario" routerDirection="root">
+            <ion-icon slot="start" name="calendar"></ion-icon>
+            <ion-label>Calendário</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/categorias" routerDirection="root">
+            <ion-icon slot="start" name="pricetags"></ion-icon>
+            <ion-label>Categorias</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
 </ion-app>

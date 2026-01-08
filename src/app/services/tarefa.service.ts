@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DatabaseService } from './database.service';
+import { NotificacaoService } from './notificacao.service';
 import { Tarefa, TarefaCreate, TarefaUpdate } from '../models/tarefa.model';
 
 /**
@@ -15,7 +16,8 @@ import { Tarefa, TarefaCreate, TarefaUpdate } from '../models/tarefa.model';
 export class TarefaService {
   constructor(
     private storageService: StorageService,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private notificacaoService: NotificacaoService
   ) {}
 
   /**
@@ -132,6 +134,9 @@ export class TarefaService {
     tarefas.push(this.serializeTarefa(novaTarefa));
     await this.storageService.setTarefas(tarefas);
 
+    // Agenda notificações para a nova tarefa
+    await this.notificacaoService.agendarNotificacoesTarefa(novaTarefa);
+
     return novaTarefa;
   }
 
@@ -174,6 +179,9 @@ export class TarefaService {
    * @param id - ID da tarefa
    */
   async delete(id: string): Promise<void> {
+    // Cancela notificações da tarefa antes de eliminar
+    await this.notificacaoService.cancelarNotificacoesTarefa(id);
+
     // Elimina do SQLite se disponível
     if (this.databaseService.isUsingSQLite()) {
       await this.databaseService.deleteTarefaSQLite(id);

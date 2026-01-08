@@ -32,15 +32,263 @@
  * https://ionicframework.com/docs/theming/dark-mode
  */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+@import "@ionic/angular/css/palettes/dark.always.css";
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
 /**
  * Estilos Globais Personalizados
  * -----------------------------------------------------
- * Estilos aplicados globalmente na aplicação
+ * Estilo Nothing - Clean, Minimalista, Tech/Console
+ * Inspirado em Bear Software e design minimalista
  */
+
+// Aplicar fundo escuro global
+ion-content {
+  --background: var(--bg-primary);
+  --color: var(--text-primary);
+}
+
+// Cards estilo minimalista
+ion-card {
+  --background: var(--bg-card);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: none;
+  margin: 12px 16px;
+  
+  &:hover {
+    border-color: var(--border-color-hover);
+  }
+  
+  ion-card-header {
+    border-bottom: var(--border-width) solid var(--border-color);
+    padding: 12px 16px;
+    
+    ion-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+// Items estilo clean
+ion-item {
+  --background: transparent;
+  --color: var(--text-primary);
+  --border-color: var(--border-color);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  border-bottom: var(--border-width) solid var(--border-color);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    --background: var(--bg-secondary);
+  }
+  
+  ion-label {
+    h2 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
+    }
+    
+    p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+  }
+}
+
+// Botões estilo tech
+ion-button {
+  --border-radius: var(--border-radius-sm);
+  --border-width: var(--border-width);
+  --border-color: var(--border-color);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  
+  &.button-solid {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+    box-shadow: var(--glow-purple);
+    
+    &:hover {
+      box-shadow: var(--glow-purple-strong);
+    }
+  }
+  
+  &.button-outline {
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
+    --background: transparent;
+    
+    &:hover {
+      --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+  }
+}
+
+// Toolbar estilo minimalista
+ion-toolbar {
+  --background: var(--bg-secondary);
+  --color: var(--text-primary);
+  border-bottom: var(--border-width) solid var(--border-color);
+  
+  ion-title {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 18px;
+  }
+}
+
+// Inputs estilo console
+ion-input,
+ion-textarea,
+ion-select {
+  --background: var(--bg-secondary);
+  --color: var(--text-primary);
+  --border-color: var(--border-color);
+  --border-width: var(--border-width);
+  --border-radius: var(--border-radius-sm);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-family: var(--font-sans);
+  
+  &:focus {
+    --border-color: var(--border-color-focus);
+    box-shadow: var(--glow-purple);
+  }
+}
+
+// Badges estilo tech
+ion-badge {
+  --background: var(--ion-color-primary);
+  --color: var(--ion-color-primary-contrast);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+// List estilo clean
+ion-list {
+  background: transparent;
+  
+  ion-item-sliding {
+    background: transparent;
+  }
+}
+
+// Loading spinner estilo minimalista
+ion-spinner {
+  --color: var(--ion-color-primary);
+}
+
+// Toast estilo tech
+ion-toast {
+  --background: var(--bg-card);
+  --color: var(--text-primary);
+  --border-radius: var(--border-radius-md);
+  --box-shadow: var(--shadow-md);
+  border: var(--border-width) solid var(--border-color);
+  
+  &::part(button) {
+    color: var(--ion-color-primary);
+  }
+}
+
+// Alert estilo minimalista
+.alert-wrapper {
+  --background: var(--bg-card);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  
+  .alert-head {
+    border-bottom: var(--border-width) solid var(--border-color);
+    
+    .alert-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+  }
+  
+  .alert-message {
+    color: var(--text-secondary);
+  }
+  
+  .alert-button {
+    color: var(--ion-color-primary);
+    font-weight: 500;
+    
+    &.alert-button-role-cancel {
+      color: var(--text-secondary);
+    }
+  }
+}
+
+// Classes utilitárias estilo console
+.console-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+.tech-border {
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.tech-glow {
+  box-shadow: var(--glow-purple);
+  
+  &:hover {
+    box-shadow: var(--glow-purple-strong);
+  }
+}
+
+.minimal-card {
+  background: var(--bg-card);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 16px;
+  margin: 12px 0;
+}
+
+// Scrollbar estilo minimalista
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+  
+  &:hover {
+    background: var(--border-color-hover);
+  }
+}
 
 // Classes utilitárias para cores de categorias
 .categoria-escola {
@@ -50,7 +298,7 @@
 
 .categoria-trabalho {
   --color: var(--cor-categoria-trabalho);
-  --background: #{rgba(33, 150, 243, 0.1)};
+  --background: #{rgba(123, 31, 162, 0.1)}; // Roxo em vez de azul
 }
 
 .categoria-pessoal {

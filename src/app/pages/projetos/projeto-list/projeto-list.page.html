@@ -1,0 +1,115 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ getString('labels.projetos') }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="adicionarProjeto()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ getString('labels.projetos') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Filtro por Categoria -->
+  <ion-segment 
+    [(ngModel)]="categoriaSelecionada" 
+    (ionChange)="filtrarPorCategoria($event)"
+    *ngIf="!loading && categorias.length > 0"
+  >
+    <ion-segment-button value="todas">
+      <ion-label>Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button 
+      *ngFor="let categoria of categorias" 
+      [value]="categoria.id"
+    >
+      <ion-label>{{ categoria.nome }}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar projetos...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && projetosFiltrados.length === 0" class="empty-state">
+    <ion-icon name="folder-outline" size="large"></ion-icon>
+    <h2 *ngIf="categoriaSelecionada === null || categoriaSelecionada === 'todas'">
+      Nenhum projeto
+    </h2>
+    <h2 *ngIf="categoriaSelecionada !== null && categoriaSelecionada !== 'todas'">
+      Nenhum projeto nesta categoria
+    </h2>
+    <p>Adicione um projeto para começar</p>
+    <ion-button (click)="adicionarProjeto()" color="primary">
+      <ion-icon slot="start" name="add"></ion-icon>
+      {{ getString('labels.adicionar') }} {{ getString('labels.projetos') }}
+    </ion-button>
+  </div>
+
+  <!-- Lista de Projetos -->
+  <ion-list *ngIf="!loading && projetosFiltrados.length > 0">
+    <ion-item-sliding *ngFor="let projeto of projetosFiltrados">
+      <ion-item 
+        button 
+        (click)="verDetalhes(projeto)"
+        [style.border-left]="'4px solid ' + getCorCategoria(projeto.categoriaId)"
+      >
+        <ion-label>
+          <h2>{{ projeto.nome }}</h2>
+          <p *ngIf="projeto.descricao">{{ projeto.descricao }}</p>
+          <div class="projeto-info">
+            <ion-chip [style.--background]="getCorCategoria(projeto.categoriaId)">
+              <ion-icon [name]="getIconeCategoria(projeto.categoriaId)"></ion-icon>
+              <ion-label>{{ getNomeCategoria(projeto.categoriaId) }}</ion-label>
+            </ion-chip>
+            <span class="tarefas-info">
+              <ion-icon name="checkbox"></ion-icon>
+              {{ stats[projeto.id]?.total || 0 }} tarefas
+            </span>
+            <span 
+              *ngIf="stats[projeto.id] && stats[projeto.id].atrasadas > 0" 
+              class="tarefas-atrasadas"
+            >
+              <ion-icon name="alert-circle"></ion-icon>
+              {{ stats[projeto.id].atrasadas }} {{ getString('labels.emAtraso') }}
+            </span>
+          </div>
+        </ion-label>
+        <ion-badge 
+          *ngIf="stats[projeto.id] && stats[projeto.id].atrasadas > 0" 
+          color="danger" 
+          slot="end"
+        >
+          {{ stats[projeto.id].atrasadas }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option (click)="editarProjeto(projeto)" color="primary">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+          {{ getString('labels.editar') }}
+        </ion-item-option>
+        <ion-item-option (click)="eliminarProjeto(projeto)" color="danger">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+          {{ getString('labels.eliminar') }}
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>

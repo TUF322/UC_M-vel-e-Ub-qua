@@ -1,0 +1,177 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ getString('labels.calendario') }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="voltarMesAtual()">
+        <ion-icon slot="icon-only" name="today"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ getString('labels.calendario') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar calendário...</p>
+  </div>
+
+  <!-- Calendário -->
+  <div *ngIf="!loading" class="container">
+    <!-- Navegação do Mês -->
+    <ion-card class="navegacao-card">
+      <ion-card-content>
+        <div class="mes-navegacao">
+          <ion-button fill="clear" (click)="mesAnterior()">
+            <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+          </ion-button>
+          <div class="mes-ano">
+            <h2>{{ meses[mesAtual] }} {{ anoAtual }}</h2>
+          </div>
+          <ion-button fill="clear" (click)="mesProximo()">
+            <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Layout em duas colunas -->
+    <div class="calendario-layout">
+      <!-- Coluna Esquerda: Calendário -->
+      <div class="coluna-esquerda">
+        <ion-card>
+          <ion-card-content>
+            <!-- Cabeçalho dos dias da semana -->
+            <div class="calendario-header">
+              <div class="dia-semana" *ngFor="let dia of diasSemana">
+                {{ dia }}
+              </div>
+            </div>
+
+            <!-- Grid do calendário -->
+            <div class="calendario-grid">
+              <div
+                *ngFor="let dia of diasCalendario"
+                class="dia-calendario"
+                [class.dia-mes-anterior]="!dia.isMesAtual"
+                [class.dia-hoje]="dia.isHoje"
+                [class.dia-selecionado]="formatarDataChave(dia.data) === formatarDataChave(dataSelecionada)"
+                [class.tem-tarefas]="dia.temTarefas"
+                [class.tem-atrasadas]="dia.temAtrasadas"
+                (click)="selecionarData(dia)"
+              >
+                <span class="numero-dia">{{ dia.numero }}</span>
+                <div *ngIf="dia.temTarefas" class="indicador-tarefas">
+                  <ion-badge 
+                    [color]="dia.temAtrasadas ? 'danger' : 'primary'"
+                    [class.badge-grande]="dia.quantidade > 9"
+                  >
+                    {{ dia.quantidade > 9 ? '9+' : dia.quantidade }}
+                  </ion-badge>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Coluna Direita: Legenda e Tarefas -->
+      <div class="coluna-direita">
+        <!-- Legenda -->
+        <ion-card class="legenda-card">
+          <ion-card-header>
+            <ion-card-title>Legenda</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="legenda">
+              <div class="legenda-item">
+                <div class="legenda-cor hoje"></div>
+                <span>Hoje</span>
+              </div>
+              <div class="legenda-item">
+                <div class="legenda-cor tarefas"></div>
+                <span>Com Tarefas</span>
+              </div>
+              <div class="legenda-item">
+                <div class="legenda-cor atrasadas"></div>
+                <span>Com Tarefas em Atraso</span>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Tarefas da Data Selecionada -->
+        <ion-card *ngIf="tarefasDataSelecionada.length > 0" class="tarefas-card">
+          <ion-card-header>
+            <ion-card-title>
+              Tarefas para {{ dataSelecionada | date:'dd/MM/yyyy' }}
+              <span class="contador">({{ tarefasDataSelecionada.length }})</span>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list>
+              <ion-item-sliding *ngFor="let tarefa of tarefasDataSelecionada">
+                <ion-item
+                  button
+                  (click)="verTarefa(tarefa)"
+                  [class.tarefa-atraso]="isTarefaAtrasada(tarefa) && !tarefa.concluida"
+                  [class.tarefa-concluida]="tarefa.concluida"
+                >
+                  <ion-checkbox 
+                    slot="start" 
+                    [checked]="tarefa.concluida"
+                    (click)="$event.stopPropagation()"
+                  ></ion-checkbox>
+                  <ion-label>
+                    <h2>{{ tarefa.titulo }}</h2>
+                    <p *ngIf="tarefa.descricao">{{ tarefa.descricao }}</p>
+                    <p class="console-text">
+                      <ion-icon name="folder" size="small"></ion-icon>
+                      {{ getNomeProjeto(tarefa.projetoId) }}
+                    </p>
+                  </ion-label>
+                  <ion-icon 
+                    *ngIf="isTarefaAtrasada(tarefa) && !tarefa.concluida" 
+                    name="alert-circle" 
+                    color="danger" 
+                    slot="end"
+                  ></ion-icon>
+                </ion-item>
+
+                <ion-item-options side="end">
+                  <ion-item-option (click)="editarTarefa(tarefa)" color="primary">
+                    <ion-icon slot="icon-only" name="create"></ion-icon>
+                    {{ getString('labels.editar') }}
+                  </ion-item-option>
+                </ion-item-options>
+              </ion-item-sliding>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Mensagem quando não há tarefas na data selecionada -->
+        <ion-card *ngIf="tarefasDataSelecionada.length === 0 && !loading" class="sem-tarefas-card">
+          <ion-card-content>
+            <div class="sem-tarefas">
+              <ion-icon name="calendar-outline" size="large"></ion-icon>
+              <p>Nenhuma tarefa para {{ dataSelecionada | date:'dd/MM/yyyy' }}</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+</ion-content>

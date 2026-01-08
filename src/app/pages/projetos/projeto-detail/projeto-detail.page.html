@@ -1,0 +1,158 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/projetos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ projeto?.nome || getString('labels.projetos') }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editarProjeto()" *ngIf="projeto">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+      <ion-button (click)="eliminarProjeto()" *ngIf="projeto">
+        <ion-icon slot="icon-only" name="trash" color="danger"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ projeto?.nome || getString('labels.projetos') }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar projeto...</p>
+  </div>
+
+  <!-- Conteúdo -->
+  <div *ngIf="!loading && projeto" class="container">
+    <!-- Informações do Projeto -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ projeto.nome }}</ion-card-title>
+        <ion-card-subtitle *ngIf="categoria">
+          <ion-chip [style.--background]="categoria.cor">
+            <ion-icon [name]="categoria.icone"></ion-icon>
+            <ion-label>{{ categoria.nome }}</ion-label>
+          </ion-chip>
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <p *ngIf="projeto.descricao">{{ projeto.descricao }}</p>
+        <p *ngIf="!projeto.descricao" class="sem-descricao">Sem descrição</p>
+        <p class="data-criacao">
+          Criado em {{ projeto.dataCriacao | date:'dd/MM/yyyy' }}
+        </p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Estatísticas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Estatísticas</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="checkbox" color="primary"></ion-icon>
+                <div>
+                  <strong>{{ stats.total }}</strong>
+                  <p>Total</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="checkmark-circle" color="success"></ion-icon>
+                <div>
+                  <strong>{{ stats.concluidas }}</strong>
+                  <p>{{ getString('labels.concluida') }}</p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <div class="stat-item">
+                <ion-icon name="time" color="warning"></ion-icon>
+                <div>
+                  <strong>{{ stats.pendentes }}</strong>
+                  <p>{{ getString('labels.pendente') }}</p>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="6">
+              <div class="stat-item" [class.tarefa-atraso]="stats.atrasadas > 0">
+                <ion-icon name="alert-circle" [color]="stats.atrasadas > 0 ? 'danger' : 'medium'"></ion-icon>
+                <div>
+                  <strong>{{ stats.atrasadas }}</strong>
+                  <p>{{ getString('labels.emAtraso') }}</p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Tarefas -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          {{ getString('labels.tarefas') }} ({{ stats.total }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button expand="block" (click)="adicionarTarefa()" *ngIf="projeto">
+          <ion-icon slot="start" name="add"></ion-icon>
+          {{ getString('labels.adicionar') }} {{ getString('labels.tarefas') }}
+        </ion-button>
+
+        <div *ngIf="tarefas.length === 0" class="empty-tarefas">
+          <ion-icon name="checkbox-outline" size="large"></ion-icon>
+          <p>Nenhuma tarefa neste projeto</p>
+        </div>
+
+        <ion-list *ngIf="tarefas.length > 0">
+          <ion-item 
+            *ngFor="let tarefa of tarefas" 
+            button
+            (click)="verTarefa(tarefa)"
+            [class.tarefa-atraso]="isTarefaAtrasada(tarefa) && !tarefa.concluida"
+            [class.tarefa-concluida]="tarefa.concluida"
+          >
+            <ion-checkbox 
+              slot="start" 
+              [checked]="tarefa.concluida"
+              (click)="toggleTarefaConcluida(tarefa); $event.stopPropagation()"
+            ></ion-checkbox>
+            <ion-label>
+              <h2>{{ tarefa.titulo }}</h2>
+              <p *ngIf="tarefa.descricao">{{ tarefa.descricao }}</p>
+              <p>
+                <ion-icon name="calendar" size="small"></ion-icon>
+                {{ tarefa.dataLimite | date:'dd/MM/yyyy' }}
+              </p>
+            </ion-label>
+            <ion-icon 
+              *ngIf="isTarefaAtrasada(tarefa) && !tarefa.concluida" 
+              name="alert-circle" 
+              color="danger" 
+              slot="end"
+            ></ion-icon>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

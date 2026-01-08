@@ -8,20 +8,44 @@
  */
 
 :root {
-  // Cores principais
-  --ion-color-primary: #3880ff;
-  --ion-color-secondary: #3dc2ff;
-  --ion-color-tertiary: #5260ff;
+  // Cores principais - Roxo como cor primária (estilo nothing/tech)
+  --ion-color-primary: #9c27b0;
+  --ion-color-primary-rgb: 156, 39, 176;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #8a2199;
+  --ion-color-primary-tint: #a63db8;
+  
+  --ion-color-secondary: #7b1fa2;
+  --ion-color-tertiary: #ab47bc;
   --ion-color-success: #2dd36f;
   --ion-color-warning: #ffc409;
   --ion-color-danger: #eb445a;
-  --ion-color-dark: #222428;
-  --ion-color-medium: #92949c;
-  --ion-color-light: #f4f5f8;
+  
+  // Cores dark minimalistas (estilo nothing)
+  --ion-color-dark: #0a0a0a; // Preto quase puro
+  --ion-color-medium: #6b6b6b; // Cinza médio
+  --ion-color-light: #1a1a1a; // Cinza muito escuro
+  
+  // Cores de fundo estilo console
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #121212;
+  --bg-tertiary: #1a1a1a;
+  --bg-card: #141414;
+  
+  // Cores de texto estilo tech
+  --text-primary: #e0e0e0;
+  --text-secondary: #9c9c9c;
+  --text-muted: #6b6b6b;
+  
+  // Cores de borda minimalistas
+  --border-color: #2a2a2a;
+  --border-color-hover: #3a3a3a;
+  --border-color-focus: #9c27b0;
 
   // Cores customizadas para categorias
   --cor-categoria-escola: #4caf50;
-  --cor-categoria-trabalho: #2196f3;
+  --cor-categoria-trabalho: #7b1fa2; // Roxo em vez de azul
   --cor-categoria-pessoal: #ff9800;
   --cor-categoria-outros: #9c27b0;
   
@@ -38,13 +62,22 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
   
-  // Bordas
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
+  // Bordas minimalistas (estilo nothing)
+  --border-radius-sm: 2px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 6px;
+  --border-width: 1px;
   
-  // Sombras
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  // Sombras sutis (estilo minimalista)
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
+  
+  // Glow roxo (estilo tech)
+  --glow-purple: 0 0 8px rgba(156, 39, 176, 0.3);
+  --glow-purple-strong: 0 0 16px rgba(156, 39, 176, 0.5);
+  
+  // Fontes estilo console
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }

@@ -1,0 +1,82 @@
+/**
+ * Estilos globais do componente principal
+ * Estilo Nothing - Minimalista e Tech
+ */
+
+ion-menu {
+  --width: 280px;
+  --min-width: 250px;
+  --max-width: 300px;
+}
+
+ion-menu ion-content {
+  --background: var(--bg-primary);
+}
+
+ion-menu ion-toolbar {
+  --background: var(--bg-secondary);
+  border-bottom: var(--border-width) solid var(--border-color);
+  
+  ion-title {
+    font-weight: 600;
+    letter-spacing: 1px;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+}
+
+ion-menu ion-list {
+  padding: 8px 0;
+  background: transparent;
+}
+
+ion-menu ion-item {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --min-height: 48px;
+  --background: transparent;
+  --color: var(--text-primary);
+  margin: 2px 12px;
+  border-radius: var(--border-radius-sm);
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+  
+  ion-icon {
+    margin-right: 16px;
+    font-size: 20px;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  
+  ion-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+    font-family: var(--font-sans);
+  }
+  
+  &:hover {
+    --background: var(--bg-secondary);
+    border-left-color: var(--border-color);
+    
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+ion-menu ion-item.selected {
+  --background: var(--bg-secondary);
+  border-left-color: var(--ion-color-primary);
+  
+  ion-icon {
+    color: var(--ion-color-primary);
+  }
+  
+  ion-label {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+  }
+}

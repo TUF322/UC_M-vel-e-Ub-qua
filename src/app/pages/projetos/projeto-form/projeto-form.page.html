@@ -1,0 +1,95 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/projetos"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ isEditMode ? getString('labels.editar') : getString('labels.adicionar') }} 
+      {{ getString('labels.projetos') }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="salvar()" [disabled]="loading">
+        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">
+        {{ isEditMode ? getString('labels.editar') : getString('labels.adicionar') }} 
+        {{ getString('labels.projetos') }}
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="form-container">
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner></ion-spinner>
+      <p>A carregar...</p>
+    </div>
+
+    <!-- Formulário -->
+    <ion-card *ngIf="!loading">
+      <ion-card-header>
+        <ion-card-title>Informações do Projeto</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Campo Nome -->
+        <ion-item>
+          <ion-label position="stacked">{{ getString('labels.nome') }} *</ion-label>
+          <ion-input
+            [(ngModel)]="projeto.nome"
+            type="text"
+            placeholder="Ex: Projeto de Matemática"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <!-- Campo Categoria -->
+        <ion-item>
+          <ion-label position="stacked">{{ getString('labels.categoria') }} *</ion-label>
+          <ion-select [(ngModel)]="projeto.categoriaId" placeholder="Selecione uma categoria">
+            <ion-select-option *ngFor="let categoria of categorias" [value]="categoria.id">
+              <ion-icon [name]="categoria.icone"></ion-icon>
+              {{ categoria.nome }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Preview da Categoria -->
+        <div class="preview-categoria" *ngIf="projeto.categoriaId">
+          <ion-chip [style.--background]="getCorCategoriaSelecionada()">
+            <ion-icon [name]="getIconeCategoriaSelecionada()"></ion-icon>
+            <ion-label>{{ getNomeCategoria(projeto.categoriaId) }}</ion-label>
+          </ion-chip>
+        </div>
+
+        <!-- Campo Descrição -->
+        <ion-item>
+          <ion-label position="stacked">{{ getString('labels.descricao') }}</ion-label>
+          <ion-textarea
+            [(ngModel)]="projeto.descricao"
+            placeholder="Descrição opcional do projeto"
+            rows="4"
+          ></ion-textarea>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botões de Ação -->
+    <div class="actions-container" *ngIf="!loading">
+      <ion-button expand="block" (click)="salvar()" [disabled]="loading">
+        <ion-icon slot="start" name="checkmark"></ion-icon>
+        {{ getString('labels.salvar') }}
+      </ion-button>
+      <ion-button expand="block" fill="outline" (click)="cancelar()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        {{ getString('labels.cancelar') }}
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

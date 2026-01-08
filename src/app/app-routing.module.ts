@@ -32,10 +32,56 @@ const routes: Routes = [
       }
     ]
   },
-  // Rotas serão adicionadas nas próximas fases:
-  // - projetos
-  // - tarefas
-  // - calendario
+  {
+    path: 'projetos',
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./pages/projetos/projeto-list/projeto-list.module').then(m => m.ProjetoListPageModule)
+      },
+      {
+        path: 'novo',
+        loadChildren: () => import('./pages/projetos/projeto-form/projeto-form.module').then(m => m.ProjetoFormPageModule)
+      },
+      {
+        path: 'detalhes/:id',
+        loadChildren: () => import('./pages/projetos/projeto-detail/projeto-detail.module').then(m => m.ProjetoDetailPageModule)
+      },
+      {
+        path: 'editar/:id',
+        loadChildren: () => import('./pages/projetos/projeto-form/projeto-form.module').then(m => m.ProjetoFormPageModule)
+      }
+    ]
+  },
+  {
+    path: 'tarefas',
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./pages/tarefas/tarefa-list/tarefa-list.module').then(m => m.TarefaListPageModule)
+      },
+      {
+        path: 'nova',
+        loadChildren: () => import('./pages/tarefas/tarefa-form/tarefa-form.module').then(m => m.TarefaFormPageModule)
+      },
+      {
+        path: 'nova/:projetoId',
+        loadChildren: () => import('./pages/tarefas/tarefa-form/tarefa-form.module').then(m => m.TarefaFormPageModule)
+      },
+      {
+        path: 'detalhes/:id',
+        loadChildren: () => import('./pages/tarefas/tarefa-detail/tarefa-detail.module').then(m => m.TarefaDetailPageModule)
+      },
+      {
+        path: 'editar/:id',
+        loadChildren: () => import('./pages/tarefas/tarefa-form/tarefa-form.module').then(m => m.TarefaFormPageModule)
+      }
+    ]
+  },
+  {
+    path: 'calendario',
+    loadChildren: () => import('./pages/calendario/calendario/calendario.module').then( m => m.CalendarioPageModule)
+  }
 ];
 
 @NgModule({

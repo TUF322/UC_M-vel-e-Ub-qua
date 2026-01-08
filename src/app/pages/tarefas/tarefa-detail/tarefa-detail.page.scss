@@ -1,0 +1,112 @@
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+.container {
+  padding: 16px;
+}
+
+.descricao {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  color: var(--ion-color-dark);
+}
+
+.sem-descricao {
+  color: var(--ion-color-medium);
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  ion-icon {
+    font-size: 24px;
+    margin-top: 4px;
+  }
+
+  div {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--ion-color-dark);
+
+      &.text-danger {
+        color: var(--ion-color-danger);
+      }
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 0;
+    }
+  }
+}
+
+.tarefa-imagem {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md);
+  object-fit: cover;
+}
+
+ion-card {
+  margin-bottom: 16px;
+
+  &.tarefa-atraso {
+    border-left: 4px solid var(--ion-color-danger);
+  }
+
+  &.tarefa-concluida {
+    opacity: 0.7;
+  }
+
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+  }
+}
+
+ion-button {
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
