@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gestão de Tarefas</string>
+    <string name="title_activity_main">Gestão de Tarefas</string>
+    <string name="package_name">io.ionic.gestaotarefas</string>
+    <string name="custom_url_scheme">io.ionic.gestaotarefas</string>
+</resources>

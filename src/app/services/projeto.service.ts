@@ -22,15 +22,25 @@ export class ProjetoService {
    * @returns Promise com array de projetos
    */
   async getAll(): Promise<Projeto[]> {
+    let projetos: Projeto[] = [];
+    
     // Tenta usar SQLite primeiro
     if (this.databaseService.isUsingSQLite()) {
-      const projetos = await this.databaseService.getProjetosFromSQLite();
-      return projetos.map(proj => this.deserializeProjeto(proj));
+      const projetosSQLite = await this.databaseService.getProjetosFromSQLite();
+      projetos = projetosSQLite
+        .filter(proj => proj && proj.id) // Filtra entradas inválidas
+        .map(proj => this.deserializeProjetoFromSQLite(proj))
+        .filter((proj): proj is Projeto => proj !== null);
+    } else {
+      // Fallback para Storage
+      const projetosStorage = await this.storageService.getProjetos();
+      projetos = (projetosStorage || [])
+        .filter(proj => proj && proj.id) // Filtra entradas inválidas
+        .map(proj => this.deserializeProjeto(proj))
+        .filter((proj): proj is Projeto => proj !== null);
     }
     
-    // Fallback para Storage
-    const projetos = await this.storageService.getProjetos();
-    return projetos.map(proj => this.deserializeProjeto(proj));
+    return projetos;
   }
 
   /**
@@ -172,11 +182,44 @@ export class ProjetoService {
   /**
    * Deserializa um projeto do Storage (converte string para Date)
    */
-  private deserializeProjeto(projeto: any): Projeto {
-    return {
-      ...projeto,
-      dataCriacao: new Date(projeto.dataCriacao)
-    };
+  private deserializeProjeto(projeto: any): Projeto | null {
+    if (!projeto || !projeto.id || !projeto.nome) {
+      return null;
+    }
+
+    try {
+      return {
+        ...projeto,
+        categoriaId: projeto.categoriaId || '',
+        dataCriacao: projeto.dataCriacao ? new Date(projeto.dataCriacao) : new Date()
+      };
+    } catch (error) {
+      console.warn('Erro ao deserializar projeto:', projeto, error);
+      return null;
+    }
+  }
+
+  /**
+   * Deserializa um projeto do SQLite (converte snake_case para camelCase)
+   */
+  private deserializeProjetoFromSQLite(projeto: any): Projeto | null {
+    if (!projeto || !projeto.id || !projeto.nome) {
+      return null;
+    }
+
+    try {
+      return {
+        id: projeto.id,
+        nome: projeto.nome,
+        categoriaId: projeto.categoria_id || projeto.categoriaId || '',
+        descricao: projeto.descricao || undefined,
+        dataCriacao: projeto.data_criacao ? new Date(projeto.data_criacao) : 
+                     (projeto.dataCriacao ? new Date(projeto.dataCriacao) : new Date())
+      };
+    } catch (error) {
+      console.warn('Erro ao deserializar projeto do SQLite:', projeto, error);
+      return null;
+    }
   }
 }
 

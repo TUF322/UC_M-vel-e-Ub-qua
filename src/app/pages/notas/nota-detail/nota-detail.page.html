@@ -1,0 +1,78 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/notas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ nota?.titulo || 'Nota' }}</ion-title>
+    <ion-buttons slot="end" *ngIf="desbloqueada">
+      <ion-button (click)="editarNota()">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+      <ion-button (click)="eliminarNota()" color="danger">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">{{ nota?.titulo || 'Nota' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar nota...</p>
+  </div>
+
+  <!-- Nota Bloqueada -->
+  <div *ngIf="!loading && nota && nota.protegida && !desbloqueada" class="bloqueada-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="lock-closed" color="warning"></ion-icon>
+          Nota Protegida
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Esta nota está protegida por senha.</p>
+        <p *ngIf="senhaIncorreta" class="erro-senha">
+          <ion-icon name="alert-circle" color="danger"></ion-icon>
+          Senha incorreta. Tente novamente.
+        </p>
+        <ion-button expand="block" (click)="solicitarSenha()" color="primary">
+          <ion-icon slot="start" name="lock-open"></ion-icon>
+          Desbloquear Nota
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Nota Desbloqueada -->
+  <div *ngIf="!loading && nota && desbloqueada" class="nota-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ nota.titulo }}</ion-card-title>
+        <ion-card-subtitle>
+          <ion-icon name="time-outline"></ion-icon>
+          Criada em {{ nota.dataCriacao | date:'dd/MM/yyyy HH:mm' }}
+          <br>
+          <ion-icon name="create-outline"></ion-icon>
+          Modificada em {{ nota.dataModificacao | date:'dd/MM/yyyy HH:mm' }}
+          <br>
+          <ion-icon *ngIf="nota.protegida" name="lock-closed" color="warning"></ion-icon>
+          <span *ngIf="nota.protegida">Protegida por senha</span>
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="conteudo-nota">
+          <pre>{{ nota.conteudo }}</pre>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
+

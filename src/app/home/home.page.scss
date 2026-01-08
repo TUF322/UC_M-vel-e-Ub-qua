@@ -54,7 +54,8 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       font-size: 11px;
-      min-width: 60px;
+      min-width: 20px;
+      flex-shrink: 0;
     }
 
     .data-valor {
@@ -215,6 +216,7 @@ ion-item {
   border-radius: var(--border-radius-sm);
   background: transparent;
   border-bottom: var(--border-width) solid var(--border-color);
+  min-height: 48px;
 
   &:last-child {
     border-bottom: none;
@@ -233,5 +235,136 @@ ion-item {
     color: var(--text-secondary);
     margin: 4px 0;
     font-family: var(--font-mono);
+  }
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+// Listas de categorias e projetos
+.categorias-list,
+.projetos-list {
+  margin-bottom: 16px;
+  
+  ion-item {
+    background: var(--bg-secondary);
+    border: var(--border-width) solid var(--border-color);
+    margin-bottom: 8px;
+    border-radius: var(--border-radius-sm);
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--border-color-hover);
+      background: var(--bg-tertiary);
+      transform: translateX(4px);
+    }
+
+    &:active {
+      transform: translateX(0) scale(0.98);
+    }
+  }
+}
+
+// Grid de notas
+.notas-grid {
+  padding: 0;
+  margin-bottom: 16px;
+
+  ion-row {
+    margin: 0 -4px;
+  }
+
+  ion-col {
+    padding: 4px;
+  }
+}
+
+.nota-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 120px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--border-color-hover);
+    box-shadow: var(--glow-purple);
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .nota-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+
+    ion-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .nota-titulo {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+  }
+
+  .nota-conteudo {
+    flex: 1;
+    margin-bottom: 8px;
+    min-height: 40px;
+
+    p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      margin: 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .nota-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: var(--border-width) solid var(--border-color);
+
+    .nota-data {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      margin: 0;
+
+      ion-icon {
+        font-size: 12px;
+      }
+    }
   }
 }

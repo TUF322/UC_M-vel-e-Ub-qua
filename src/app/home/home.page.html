@@ -64,13 +64,13 @@
                 <div class="stat-content">
                   <div class="stat-calendario-info">
                     <div class="calendario-data-item">
-                      <span class="data-label">Hoje:</span>
+                      <span class="data-label">H:</span>
                       <span class="data-valor">{{ dataAtual | date:'dd/MM' }}</span>
                     </div>
                     <div class="calendario-data-item" *ngIf="tarefaMaisProxima" 
                          [class.data-hoje]="isDataHoje()"
                          [class.data-futura]="!isDataHoje()">
-                      <span class="data-label">Próxima:</span>
+                      <span class="data-label">P:</span>
                       <span class="data-valor">{{ tarefaMaisProxima.dataLimite | date:'dd/MM' }}</span>
                     </div>
                   </div>
@@ -79,6 +79,58 @@
             </ion-col>
           </ion-row>
         </ion-grid>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Notas Recentes -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="document-text"></ion-icon>
+          Notas Recentes
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="loading" class="loading">
+          <ion-spinner></ion-spinner>
+          <p>A carregar...</p>
+        </div>
+        
+        <div *ngIf="!loading && ultimasNotas.length === 0" class="empty-state">
+          <ion-icon name="document-text-outline" size="large"></ion-icon>
+          <p>Nenhuma nota encontrada</p>
+        </div>
+
+        <ion-grid *ngIf="!loading && ultimasNotas.length > 0" class="notas-grid">
+          <ion-row>
+            <ion-col size="3" *ngFor="let nota of ultimasNotas">
+              <div class="nota-card" button (click)="verNota(nota)">
+                <div class="nota-header">
+                  <ion-icon 
+                    [name]="nota.protegida ? 'lock-closed' : 'document-text'" 
+                    [color]="nota.protegida ? 'warning' : 'primary'"
+                    size="small">
+                  </ion-icon>
+                  <h3 class="nota-titulo">{{ nota.titulo }}</h3>
+                </div>
+                <div class="nota-conteudo">
+                  <p>{{ getPreviewNota(nota) }}</p>
+                </div>
+                <div class="nota-footer">
+                  <p class="nota-data">
+                    <ion-icon name="time-outline" size="small"></ion-icon>
+                    {{ nota.dataModificacao | date:'dd/MM' }}
+                  </p>
+                </div>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <ion-button expand="block" fill="outline" routerLink="/notas" *ngIf="!loading">
+          <ion-icon slot="start" name="list"></ion-icon>
+          Ver Todas as Notas
+        </ion-button>
       </ion-card-content>
     </ion-card>
 
@@ -101,16 +153,12 @@
           <p>Nenhuma categoria encontrada</p>
         </div>
 
-        <ion-list *ngIf="!loading && categorias.length > 0">
-          <ion-item *ngFor="let categoria of categorias" [style.--color]="categoria.cor" button routerLink="/categorias">
+        <ion-list *ngIf="!loading && ultimasCategorias.length > 0" class="categorias-list">
+          <ion-item *ngFor="let categoria of ultimasCategorias" [style.--color]="categoria.cor" button routerLink="/categorias">
             <ion-icon [name]="categoria.icone" slot="start" [style.color]="categoria.cor"></ion-icon>
             <ion-label>
               <h2>{{ categoria.nome }}</h2>
-              <p>Criada em {{ categoria.dataCriacao | date:'dd/MM/yyyy' }}</p>
             </ion-label>
-            <ion-badge [style.--background]="categoria.cor" slot="end">
-              {{ categoria.cor }}
-            </ion-badge>
           </ion-item>
         </ion-list>
 
@@ -130,17 +178,22 @@
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
+        <div *ngIf="loading" class="loading">
+          <ion-spinner></ion-spinner>
+          <p>A carregar...</p>
+        </div>
+        
         <div *ngIf="!loading && projetos.length === 0" class="empty-state">
           <ion-icon name="folder-outline" size="large"></ion-icon>
           <p>Nenhum projeto encontrado</p>
         </div>
 
-        <ion-list *ngIf="!loading && projetos.length > 0">
-          <ion-item *ngFor="let projeto of projetos" button routerLink="/projetos">
+        <ion-list *ngIf="!loading && ultimosProjetos.length > 0" class="projetos-list">
+          <ion-item *ngFor="let projeto of ultimosProjetos" button routerLink="/projetos">
+            <ion-icon name="folder" slot="start" color="primary"></ion-icon>
             <ion-label>
               <h2>{{ projeto.nome }}</h2>
               <p *ngIf="projeto.descricao">{{ projeto.descricao }}</p>
-              <p>Criado em {{ projeto.dataCriacao | date:'dd/MM/yyyy' }}</p>
             </ion-label>
           </ion-item>
         </ion-list>

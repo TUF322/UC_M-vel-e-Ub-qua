@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   CATEGORIAS: 'categorias',
   PROJETOS: 'projetos',
   TAREFAS: 'tarefas',
+  NOTAS: 'notas',
   INICIALIZADO: 'inicializado'
 } as const;
 
@@ -87,6 +88,22 @@ export class StorageService {
   async setTarefas(tarefas: any[]): Promise<void> {
     await this.init();
     await this.storage.set(STORAGE_KEYS.TAREFAS, tarefas);
+  }
+
+  /**
+   * Obtém todas as notas
+   */
+  async getNotas(): Promise<any[]> {
+    await this.init();
+    return await this.storage.get(STORAGE_KEYS.NOTAS) || [];
+  }
+
+  /**
+   * Guarda todas as notas
+   */
+  async setNotas(notas: any[]): Promise<void> {
+    await this.init();
+    await this.storage.set(STORAGE_KEYS.NOTAS, notas);
   }
 
   /**

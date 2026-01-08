@@ -41,13 +41,25 @@ export class ProjetoListPage implements OnInit {
   }
 
   /**
+   * Recarrega dados quando a página é exibida
+   */
+  async ionViewWillEnter() {
+    await this.carregarDados();
+  }
+
+  /**
    * Carrega todos os dados necessários
    */
   async carregarDados() {
     try {
       this.loading = true;
-      this.categorias = await this.categoriaService.getAll();
-      this.projetos = await this.projetoService.getAll();
+      const todasCategorias = await this.categoriaService.getAll();
+      // Filtra apenas categorias válidas
+      this.categorias = todasCategorias.filter(cat => cat && cat.id && cat.nome && cat.cor && cat.icone);
+      
+      const todosProjetos = await this.projetoService.getAll();
+      // Filtra apenas projetos válidos
+      this.projetos = todosProjetos.filter(proj => proj && proj.id && proj.nome);
       
       // Carrega estatísticas de tarefas por projeto
       await this.carregarEstatisticas();
@@ -102,25 +114,28 @@ export class ProjetoListPage implements OnInit {
   /**
    * Obtém o ícone da categoria
    */
-  getIconeCategoria(categoriaId: string): string {
-    const categoria = this.categorias.find(c => c.id === categoriaId);
-    return categoria ? categoria.icone : 'folder';
+  getIconeCategoria(categoriaId: string | null | undefined): string {
+    if (!categoriaId) return 'folder';
+    const categoria = this.categorias.find(c => c && c.id === categoriaId);
+    return categoria && categoria.icone ? categoria.icone : 'folder';
   }
 
   /**
    * Obtém o nome da categoria
    */
-  getNomeCategoria(categoriaId: string): string {
-    const categoria = this.categorias.find(cat => cat.id === categoriaId);
-    return categoria ? categoria.nome : 'Sem categoria';
+  getNomeCategoria(categoriaId: string | null | undefined): string {
+    if (!categoriaId) return 'Sem categoria';
+    const categoria = this.categorias.find(cat => cat && cat.id === categoriaId);
+    return categoria && categoria.nome ? categoria.nome : 'Sem categoria';
   }
 
   /**
    * Obtém a cor da categoria
    */
-  getCorCategoria(categoriaId: string): string {
-    const categoria = this.categorias.find(cat => cat.id === categoriaId);
-    return categoria ? categoria.cor : '#92949c';
+  getCorCategoria(categoriaId: string | null | undefined): string {
+    if (!categoriaId) return '#92949c';
+    const categoria = this.categorias.find(cat => cat && cat.id === categoriaId);
+    return categoria && categoria.cor ? categoria.cor : '#92949c';
   }
 
   /**

@@ -22,15 +22,30 @@ export class CategoriaService {
    * @returns Promise com array de categorias
    */
   async getAll(): Promise<Categoria[]> {
+    let categorias: Categoria[] = [];
+    
     // Tenta usar SQLite primeiro
     if (this.databaseService.isUsingSQLite()) {
-      const categorias = await this.databaseService.getCategoriasFromSQLite();
-      return categorias.map(cat => this.deserializeCategoria(cat));
+      const categoriasSQLite = await this.databaseService.getCategoriasFromSQLite();
+      categorias = categoriasSQLite
+        .filter(cat => cat && cat.id) // Filtra entradas inválidas
+        .map(cat => this.deserializeCategoria(cat))
+        .filter((cat): cat is Categoria => cat !== null); // Filtra nulls e valida tipo
+    } else {
+      // Fallback para Storage
+      const categoriasStorage = await this.storageService.getCategorias();
+      categorias = (categoriasStorage || [])
+        .filter(cat => cat && cat.id) // Filtra entradas inválidas
+        .map(cat => this.deserializeCategoria(cat))
+        .filter((cat): cat is Categoria => cat !== null); // Filtra nulls e valida tipo
     }
     
-    // Fallback para Storage
-    const categorias = await this.storageService.getCategorias();
-    return categorias.map(cat => this.deserializeCategoria(cat));
+    // Remove duplicados por ID (garante que não há duplicação)
+    const categoriasUnicas = categorias.filter((cat, index, self) =>
+      index === self.findIndex(c => c.id === cat.id)
+    );
+    
+    return categoriasUnicas;
   }
 
   /**
@@ -56,15 +71,27 @@ export class CategoriaService {
       dataCriacao: new Date()
     };
 
-    // Salva no SQLite se disponível
+    // Salva no SQLite se disponível (fonte principal)
     if (this.databaseService.isUsingSQLite()) {
       await this.databaseService.saveCategoriaSQLite(novaCategoria);
+      // Também salva no Storage para sincronização (mas não duplica)
+      const categorias = await this.storageService.getCategorias();
+      // Verifica se já existe antes de adicionar
+      const existe = categorias.some((cat: any) => cat.id === novaCategoria.id);
+      if (!existe) {
+        categorias.push(this.serializeCategoria(novaCategoria));
+        await this.storageService.setCategorias(categorias);
+      }
+    } else {
+      // Se não usa SQLite, salva apenas no Storage
+      const categorias = await this.storageService.getCategorias();
+      // Verifica se já existe antes de adicionar
+      const existe = categorias.some((cat: any) => cat.id === novaCategoria.id);
+      if (!existe) {
+        categorias.push(this.serializeCategoria(novaCategoria));
+        await this.storageService.setCategorias(categorias);
+      }
     }
-
-    // Sempre salva também no Storage (para sincronização e fallback)
-    const categorias = await this.storageService.getCategorias();
-    categorias.push(this.serializeCategoria(novaCategoria));
-    await this.storageService.setCategorias(categorias);
 
     return novaCategoria;
   }
@@ -169,11 +196,21 @@ export class CategoriaService {
   /**
    * Deserializa uma categoria do Storage (converte string para Date)
    */
-  private deserializeCategoria(categoria: any): Categoria {
-    return {
-      ...categoria,
-      dataCriacao: new Date(categoria.dataCriacao)
-    };
+  private deserializeCategoria(categoria: any): Categoria | null {
+    // Valida se a categoria é válida
+    if (!categoria || !categoria.id || !categoria.nome || !categoria.cor || !categoria.icone) {
+      return null;
+    }
+
+    try {
+      return {
+        ...categoria,
+        dataCriacao: categoria.dataCriacao ? new Date(categoria.dataCriacao) : new Date()
+      };
+    } catch (error) {
+      console.warn('Erro ao deserializar categoria:', categoria, error);
+      return null;
+    }
   }
 }
 

@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { CategoriaService } from '../services/categoria.service';
 import { ProjetoService } from '../services/projeto.service';
 import { TarefaService } from '../services/tarefa.service';
+import { NotaService } from '../services/nota.service';
 import { StringService } from '../services/string.service';
 import { Categoria } from '../models/categoria.model';
 import { Projeto } from '../models/projeto.model';
 import { Tarefa } from '../models/tarefa.model';
+import { Nota } from '../models/nota.model';
 
 /**
  * Página inicial da aplicação
@@ -20,10 +22,14 @@ import { Tarefa } from '../models/tarefa.model';
 })
 export class HomePage implements OnInit {
   categorias: Categoria[] = [];
+  ultimasCategorias: Categoria[] = [];
   projetos: Projeto[] = [];
+  ultimosProjetos: Projeto[] = [];
   tarefas: Tarefa[] = [];
   tarefasAtrasadas: Tarefa[] = [];
   tarefaMaisProxima: Tarefa | null = null;
+  notas: Nota[] = [];
+  ultimasNotas: Nota[] = [];
   dataAtual: Date = new Date();
   loading = true;
   stats = {
@@ -37,11 +43,19 @@ export class HomePage implements OnInit {
     private categoriaService: CategoriaService,
     private projetoService: ProjetoService,
     private tarefaService: TarefaService,
+    private notaService: NotaService,
     private stringService: StringService,
     private router: Router
   ) {}
 
   async ngOnInit() {
+    await this.carregarDados();
+  }
+
+  /**
+   * Recarrega dados quando a página é exibida
+   */
+  async ionViewWillEnter() {
     await this.carregarDados();
   }
 
@@ -53,16 +67,32 @@ export class HomePage implements OnInit {
       this.loading = true;
 
       // Carrega categorias
-      this.categorias = await this.categoriaService.getAll();
+      const todasCategorias = await this.categoriaService.getAll();
+      // Remove duplicados por ID
+      this.categorias = todasCategorias.filter((cat, index, self) =>
+        index === self.findIndex(c => c.id === cat.id)
+      );
+      // Pega as 4 primeiras categorias para exibir na home
+      this.ultimasCategorias = this.categorias.slice(0, 4);
       
       // Carrega projetos
       this.projetos = await this.projetoService.getAll();
+      // Pega os 4 primeiros projetos para exibir na home
+      this.ultimosProjetos = this.projetos.slice(0, 4);
       
       // Carrega tarefas
       this.tarefas = await this.tarefaService.getAll();
       
       // Carrega tarefas em atraso
       this.tarefasAtrasadas = await this.tarefaService.getTarefasAtrasadas();
+
+      // Carrega notas
+      this.notas = await this.notaService.getAll();
+      
+      // Ordena notas por data de modificação (mais recente primeiro) e pega as 4 primeiras
+      this.ultimasNotas = this.notas
+        .sort((a, b) => b.dataModificacao.getTime() - a.dataModificacao.getTime())
+        .slice(0, 4);
 
       // Encontra a tarefa mais próxima da data atual
       this.tarefaMaisProxima = this.encontrarTarefaMaisProxima();
@@ -172,5 +202,24 @@ export class HomePage implements OnInit {
     dataProxima.setHours(0, 0, 0, 0);
 
     return hoje.getTime() === dataProxima.getTime();
+  }
+
+  /**
+   * Navega para detalhes da nota
+   * @param nota - Nota para visualizar
+   */
+  verNota(nota: Nota) {
+    this.router.navigate(['/notas/detalhes', nota.id]);
+  }
+
+  /**
+   * Obtém preview do conteúdo da nota
+   */
+  getPreviewNota(nota: Nota): string {
+    if (nota.protegida) {
+      return '*** Protegida ***';
+    }
+    const preview = nota.conteudo.substring(0, 50);
+    return preview.length < nota.conteudo.length ? preview + '...' : preview;
   }
 }

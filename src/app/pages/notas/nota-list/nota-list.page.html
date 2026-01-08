@@ -1,0 +1,72 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Notas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="adicionarNota()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Notas</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar notas...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && notas.length === 0" class="empty-state">
+    <ion-icon name="document-text-outline" size="large"></ion-icon>
+    <h2>Nenhuma nota</h2>
+    <p>Crie uma nota para começar</p>
+    <ion-button (click)="adicionarNota()" color="primary">
+      <ion-icon slot="start" name="add"></ion-icon>
+      Criar Nota
+    </ion-button>
+  </div>
+
+  <!-- Lista de Notas -->
+  <ion-list *ngIf="!loading && notas.length > 0">
+    <ion-item-sliding *ngFor="let nota of notas">
+      <ion-item button (click)="verNota(nota)">
+        <ion-icon name="document-text" slot="start" size="large" [color]="nota.protegida ? 'warning' : 'primary'"></ion-icon>
+        <ion-label>
+          <h2>{{ nota.titulo }}</h2>
+          <p>{{ getPreview(nota) }}</p>
+          <p class="nota-meta">
+            <ion-icon name="time-outline" size="small"></ion-icon>
+            Modificada em {{ nota.dataModificacao | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+        </ion-label>
+        <ion-icon *ngIf="nota.protegida" name="lock-closed" slot="end" color="warning"></ion-icon>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option (click)="editarNota(nota)" color="primary">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+          Editar
+        </ion-item-option>
+        <ion-item-option (click)="eliminarNota(nota)" color="danger">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+          Eliminar
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>
+

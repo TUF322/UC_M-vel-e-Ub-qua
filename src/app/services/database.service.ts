@@ -52,7 +52,7 @@ export class DatabaseService {
     try {
       // Cria conexão
       const connection = new SQLiteConnection(CapacitorSQLite);
-      
+
       // Verifica se a base de dados existe
       const isConn = (await connection.isConnection(this.DB_NAME, false)).result;
 
@@ -96,7 +96,7 @@ export class DatabaseService {
         icone TEXT NOT NULL,
         data_criacao TEXT NOT NULL
       );`,
-      
+
       // Tabela de Projetos
       `CREATE TABLE IF NOT EXISTS projetos (
         id TEXT PRIMARY KEY,
@@ -105,7 +105,7 @@ export class DatabaseService {
         descricao TEXT,
         data_criacao TEXT NOT NULL
       );`,
-      
+
       // Tabela de Tarefas
       `CREATE TABLE IF NOT EXISTS tarefas (
         id TEXT PRIMARY KEY,
@@ -118,11 +118,23 @@ export class DatabaseService {
         concluida INTEGER NOT NULL DEFAULT 0,
         data_criacao TEXT NOT NULL
       );`,
-      
+
+      // Tabela de Notas
+      `CREATE TABLE IF NOT EXISTS notas (
+        id TEXT PRIMARY KEY,
+        titulo TEXT NOT NULL,
+        conteudo TEXT NOT NULL,
+        protegida INTEGER NOT NULL DEFAULT 0,
+        senha_hash TEXT,
+        data_criacao TEXT NOT NULL,
+        data_modificacao TEXT NOT NULL
+      );`,
+
       // Índices
       `CREATE INDEX IF NOT EXISTS idx_projetos_categoria ON projetos(categoria_id);`,
       `CREATE INDEX IF NOT EXISTS idx_tarefas_projeto ON tarefas(projeto_id);`,
-      `CREATE INDEX IF NOT EXISTS idx_tarefas_data_limite ON tarefas(data_limite);`
+      `CREATE INDEX IF NOT EXISTS idx_tarefas_data_limite ON tarefas(data_limite);`,
+      `CREATE INDEX IF NOT EXISTS idx_notas_data_modificacao ON notas(data_modificacao);`
     ];
 
     for (const query of queries) {
@@ -284,13 +296,58 @@ export class DatabaseService {
   }
 
   /**
+   * Guarda uma nota no SQLite
+   */
+  async saveNotaSQLite(nota: any): Promise<void> {
+    if (!this.isUsingSQLite()) return;
+    const query = `
+      INSERT OR REPLACE INTO notas (id, titulo, conteudo, protegida, senha_hash, data_criacao, data_modificacao)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    await this.execute(query, [
+      nota.id,
+      nota.titulo,
+      nota.conteudo,
+      nota.protegida ? 1 : 0,
+      nota.senhaHash || null,
+      nota.dataCriacao instanceof Date ? nota.dataCriacao.toISOString() : nota.dataCriacao,
+      nota.dataModificacao instanceof Date ? nota.dataModificacao.toISOString() : nota.dataModificacao
+    ]);
+  }
+
+  /**
+   * Elimina uma nota do SQLite
+   */
+  async deleteNotaSQLite(id: string): Promise<void> {
+    if (!this.isUsingSQLite()) return;
+    await this.execute('DELETE FROM notas WHERE id = ?', [id]);
+  }
+
+  /**
+   * Obtém todas as notas do SQLite
+   */
+  async getNotasFromSQLite(): Promise<any[]> {
+    if (!this.isUsingSQLite()) return [];
+    const result = await this.query('SELECT * FROM notas ORDER BY data_modificacao DESC');
+    return result.map((row: any) => ({
+      id: row.id,
+      titulo: row.titulo,
+      conteudo: row.conteudo,
+      protegida: row.protegida === 1,
+      senhaHash: row.senha_hash || undefined,
+      dataCriacao: new Date(row.data_criacao),
+      dataModificacao: new Date(row.data_modificacao)
+    }));
+  }
+
+  /**
    * Sincroniza dados do Storage para SQLite (migração)
    */
   async syncFromStorage(): Promise<void> {
     if (!this.isUsingSQLite()) return;
 
     try {
-      // Migra categorias
+      // Migra categorias (INSERT OR REPLACE já evita duplicação)
       const categorias = await this.storageService.getCategorias();
       for (const cat of categorias) {
         await this.saveCategoriaSQLite(cat);
@@ -308,7 +365,13 @@ export class DatabaseService {
         await this.saveTarefaSQLite(tar);
       }
 
-      console.log('Dados migrados do Storage para SQLite');
+      // Migra notas
+      const notas = await this.storageService.getNotas();
+      for (const nota of notas) {
+        await this.saveNotaSQLite(nota);
+      }
+
+      console.log('Dados sincronizados do Storage para SQLite');
     } catch (error) {
       console.error('Erro ao sincronizar dados:', error);
     }

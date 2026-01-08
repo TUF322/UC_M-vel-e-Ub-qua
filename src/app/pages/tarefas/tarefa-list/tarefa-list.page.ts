@@ -53,6 +53,16 @@ export class TarefaListPage implements OnInit {
   }
 
   /**
+   * Recarrega dados quando a página é exibida
+   */
+  async ionViewWillEnter() {
+    if (this.projetoId) {
+      await this.carregarProjeto();
+    }
+    await this.carregarTarefas();
+  }
+
+  /**
    * Carrega o projeto
    */
   async carregarProjeto() {

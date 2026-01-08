@@ -10,7 +10,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * - Keyboard: Configurado para melhor UX
  */
 const config: CapacitorConfig = {
-  appId: 'io.ionic.gestao-tarefas',
+  appId: 'io.ionic.gestaotarefas',
   appName: 'Gestão de Tarefas',
   webDir: 'www',
   server: {

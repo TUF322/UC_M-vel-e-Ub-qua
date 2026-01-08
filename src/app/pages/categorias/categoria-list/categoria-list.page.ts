@@ -32,12 +32,25 @@ export class CategoriaListPage implements OnInit {
   }
 
   /**
+   * Recarrega dados quando a página é exibida
+   */
+  async ionViewWillEnter() {
+    await this.carregarCategorias();
+  }
+
+  /**
    * Carrega todas as categorias
    */
   async carregarCategorias() {
     try {
       this.loading = true;
-      this.categorias = await this.categoriaService.getAll();
+      const todasCategorias = await this.categoriaService.getAll();
+      // Filtra apenas categorias válidas (com id, nome, cor e icone)
+      this.categorias = todasCategorias
+        .filter(cat => cat && cat.id && cat.nome && cat.cor && cat.icone)
+        .filter((cat, index, self) =>
+          index === self.findIndex(c => c.id === cat.id)
+        );
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
       await this.mostrarToast(this.getString('mensagens.erro.geral'), 'danger');
@@ -106,6 +119,13 @@ export class CategoriaListPage implements OnInit {
    */
   getString(path: string): string {
     return this.stringService.get(path);
+  }
+
+  /**
+   * Track by function para melhorar performance do ngFor
+   */
+  trackByCategoriaId(index: number, categoria: Categoria): string {
+    return categoria.id;
   }
 
   /**

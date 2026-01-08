@@ -41,29 +41,20 @@
   </div>
 
   <!-- Lista de Categorias -->
-  <ion-list *ngIf="!loading && categorias.length > 0">
-    <ion-item-sliding *ngFor="let categoria of categorias">
-      <ion-item [style.--color]="categoria.cor" [style.border-left]="'4px solid ' + categoria.cor">
-        <ion-icon [name]="categoria.icone" slot="start" [style.color]="categoria.cor" size="large"></ion-icon>
-        <ion-label>
-          <h2>{{ categoria.nome }}</h2>
-          <p>Criada em {{ categoria.dataCriacao | date:'dd/MM/yyyy' }}</p>
-        </ion-label>
-        <ion-badge [style.--background]="categoria.cor" slot="end">
-          {{ categoria.cor }}
-        </ion-badge>
-      </ion-item>
-
-      <ion-item-options side="end">
-        <ion-item-option (click)="editarCategoria(categoria)" color="primary">
-          <ion-icon slot="icon-only" name="create"></ion-icon>
-          {{ getString('labels.editar') }}
-        </ion-item-option>
-        <ion-item-option (click)="eliminarCategoria(categoria)" color="danger">
-          <ion-icon slot="icon-only" name="trash"></ion-icon>
-          {{ getString('labels.eliminar') }}
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
+  <ion-list *ngIf="!loading && categorias.length > 0" class="categorias-list">
+    <ion-item *ngFor="let categoria of categorias; trackBy: trackByCategoriaId" 
+              [style.--color]="categoria.cor" 
+              [style.border-left]="'4px solid ' + categoria.cor"
+              button
+              (click)="editarCategoria(categoria)">
+      <ion-icon [name]="categoria.icone" slot="start" [style.color]="categoria.cor" size="large"></ion-icon>
+      <ion-label>
+        <h2>{{ categoria.nome }}</h2>
+        <p>Criada em {{ categoria.dataCriacao | date:'dd/MM/yyyy' }}</p>
+      </ion-label>
+      <ion-button slot="end" fill="clear" (click)="eliminarCategoria(categoria); $event.stopPropagation()">
+        <ion-icon name="trash" color="danger"></ion-icon>
+      </ion-button>
+    </ion-item>
   </ion-list>
 </ion-content>

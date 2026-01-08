@@ -81,6 +81,27 @@ const routes: Routes = [
   {
     path: 'calendario',
     loadChildren: () => import('./pages/calendario/calendario/calendario.module').then( m => m.CalendarioPageModule)
+  },
+  {
+    path: 'notas',
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('./pages/notas/nota-list/nota-list.module').then(m => m.NotaListPageModule)
+      },
+      {
+        path: 'nova',
+        loadChildren: () => import('./pages/notas/nota-form/nota-form.module').then(m => m.NotaFormPageModule)
+      },
+      {
+        path: 'detalhes/:id',
+        loadChildren: () => import('./pages/notas/nota-detail/nota-detail.module').then(m => m.NotaDetailPageModule)
+      },
+      {
+        path: 'editar/:id',
+        loadChildren: () => import('./pages/notas/nota-form/nota-form.module').then(m => m.NotaFormPageModule)
+      }
+    ]
   }
 ];
 
