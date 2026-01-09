@@ -37,16 +37,39 @@
 /* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
 /**
+ * Fontes Externas
+ * -----------------------------------------------------
+ * Importação de fontes customizadas
+ */
+@font-face {
+  font-family: 'DOTMATRIX';
+  src: url('assets/font/DOTMATRI.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
  * Estilos Globais Personalizados
  * -----------------------------------------------------
  * Estilo Nothing - Clean, Minimalista, Tech/Console
  * Inspirado em Bear Software e design minimalista
  */
 
+// Aplicar fonte DOTMATRIX globalmente em todos os textos
+* {
+  font-family: var(--font-dotmatrix) !important;
+}
+
+body, html {
+  font-family: var(--font-dotmatrix) !important;
+}
+
 // Aplicar fundo escuro global
 ion-content {
   --background: var(--bg-primary);
   --color: var(--text-primary);
+  font-family: var(--font-dotmatrix) !important;
 }
 
 // Cards estilo minimalista
@@ -70,6 +93,7 @@ ion-card {
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: 0.5px;
+      font-family: var(--font-dotmatrix); // Aplicar fonte DOTMATRIX nos títulos de cards
     }
   }
   
@@ -87,6 +111,7 @@ ion-item {
   --padding-end: 16px;
   --inner-padding-end: 0;
   border-bottom: var(--border-width) solid var(--border-color);
+  font-family: var(--font-dotmatrix) !important;
   
   &:last-child {
     border-bottom: none;
@@ -102,12 +127,13 @@ ion-item {
       font-weight: 500;
       color: var(--text-primary);
       letter-spacing: 0.3px;
+      font-family: var(--font-dotmatrix) !important;
     }
     
     p {
       font-size: 13px;
       color: var(--text-secondary);
-      font-family: var(--font-mono);
+      font-family: var(--font-dotmatrix) !important;
     }
   }
 }
@@ -152,6 +178,7 @@ ion-toolbar {
     font-weight: 600;
     letter-spacing: 0.5px;
     font-size: 18px;
+    font-family: var(--font-dotmatrix); // Aplicar fonte DOTMATRIX nos títulos
   }
 }
 
@@ -166,7 +193,7 @@ ion-select {
   --border-radius: var(--border-radius-sm);
   --padding-start: 12px;
   --padding-end: 12px;
-  font-family: var(--font-sans);
+  font-family: var(--font-dotmatrix) !important;
   
   &:focus {
     --border-color: var(--border-color-focus);
@@ -179,7 +206,7 @@ ion-badge {
   --background: var(--ion-color-primary);
   --color: var(--ion-color-primary-contrast);
   border-radius: var(--border-radius-sm);
-  font-family: var(--font-mono);
+  font-family: var(--font-dotmatrix); // Aplicar fonte DOTMATRIX nos badges
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -244,10 +271,16 @@ ion-toast {
 
 // Classes utilitárias estilo console
 .console-text {
-  font-family: var(--font-mono);
+  font-family: var(--font-dotmatrix) !important;
   font-size: 13px;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
+}
+
+// Classe utilitária para fonte DOTMATRIX (requisito opcional)
+.dotmatrix-text {
+  font-family: var(--font-dotmatrix) !important;
+  letter-spacing: 1px;
 }
 
 .tech-border {

@@ -102,6 +102,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/notas/nota-form/nota-form.module').then(m => m.NotaFormPageModule)
       }
     ]
+  },
+  {
+    path: 'settings',
+    loadChildren: () => import('./pages/settings/settings/settings.module').then(m => m.SettingsPageModule)
   }
 ];
 

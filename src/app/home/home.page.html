@@ -82,6 +82,46 @@
       </ion-card-content>
     </ion-card>
 
+    <!-- Clima (Portugal) -->
+    <ion-card *ngIf="currentWeather && !loadingWeather">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="partly-sunny"></ion-icon>
+          Clima - {{ currentWeather.city }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="weather-info">
+          <div class="weather-main">
+            <div class="weather-temp">
+              <h2>{{ currentWeather.temp }}°C</h2>
+              <p>Sensação: {{ currentWeather.feelsLike }}°C</p>
+            </div>
+            <div class="weather-icon">
+              <img [src]="currentWeather.icon" [alt]="currentWeather.description" />
+            </div>
+          </div>
+          <div class="weather-details">
+            <p class="weather-description">{{ currentWeather.description }}</p>
+            <div class="weather-stats">
+              <span>
+                <ion-icon name="water"></ion-icon>
+                {{ currentWeather.humidity }}%
+              </span>
+              <span>
+                <ion-icon name="speedometer"></ion-icon>
+                {{ currentWeather.pressure }} hPa
+              </span>
+              <span>
+                <ion-icon name="leaf"></ion-icon>
+                {{ currentWeather.windSpeed }} km/h
+              </span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
     <!-- Notas Recentes -->
     <ion-card>
       <ion-card-header>

@@ -1,0 +1,117 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Configurações</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Configurações</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <ion-spinner></ion-spinner>
+    <p>A carregar configurações...</p>
+  </div>
+
+  <!-- Formulário de Configurações -->
+  <div *ngIf="!loading" class="container">
+    <!-- Configurações de API -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="cloud-outline"></ion-icon>
+          APIs Externas
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Configuração de Clima -->
+        <ion-item>
+          <ion-label position="stacked">Cidade para Clima</ion-label>
+          <ion-input
+            [(ngModel)]="config.weatherCity"
+            placeholder="Ex: Lisbon, Porto, Madrid"
+            [disabled]="saving"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">País para Clima</ion-label>
+          <ion-select
+            [(ngModel)]="config.weatherCountry"
+            [disabled]="saving"
+            interface="popover"
+          >
+            <ion-select-option *ngFor="let pais of paises" [value]="pais.code">
+              {{ pais.nome }} ({{ pais.code }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Configuração de Feriados -->
+        <ion-item>
+          <ion-label position="stacked">País para Feriados</ion-label>
+          <ion-select
+            [(ngModel)]="config.holidayCountry"
+            [disabled]="saving"
+            interface="popover"
+          >
+            <ion-select-option *ngFor="let pais of paises" [value]="pais.code">
+              {{ pais.nome }} ({{ pais.code }})
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Informações -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="information-circle-outline"></ion-icon>
+          Informações
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-icon slot="start" name="bulb-outline" color="warning"></ion-icon>
+          <ion-label>
+            <h3>Dica</h3>
+            <p>As alterações nas configurações de cidade/país serão aplicadas após salvar e recarregar os dados nas páginas correspondentes.</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Botões de Ação -->
+    <div class="action-buttons">
+      <ion-button
+        expand="block"
+        color="primary"
+        (click)="salvar()"
+        [disabled]="saving"
+      >
+        <ion-icon slot="start" name="save-outline"></ion-icon>
+        Salvar Configurações
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        color="medium"
+        fill="outline"
+        (click)="resetar()"
+        [disabled]="saving"
+      >
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Resetar para Padrão
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
+

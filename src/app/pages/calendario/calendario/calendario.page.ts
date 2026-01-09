@@ -4,8 +4,10 @@ import { ToastController } from '@ionic/angular';
 import { TarefaService } from '../../../services/tarefa.service';
 import { ProjetoService } from '../../../services/projeto.service';
 import { StringService } from '../../../services/string.service';
+import { HolidayService } from '../../../services/api/holiday.service';
 import { Tarefa } from '../../../models/tarefa.model';
 import { Projeto } from '../../../models/projeto.model';
+import { Holiday } from '../../../models/api.models';
 
 /**
  * Interface para agrupar tarefas por data
@@ -27,6 +29,8 @@ interface DiaCalendario {
   quantidade: number;
   isMesAtual: boolean;
   isHoje: boolean;
+  isFeriado: boolean;
+  nomeFeriado: string | null;
 }
 
 /**
@@ -50,6 +54,9 @@ export class CalendarioPage implements OnInit {
   tarefasDataSelecionada: Tarefa[] = [];
   projetos: Map<string, Projeto> = new Map();
   loading = true;
+  feriados: Map<string, Holiday> = new Map(); // Chave: YYYY-MM-DD
+  loadingFeriados = false;
+  feriadoSelecionado: Holiday | null = null; // Feriado da data selecionada
 
   meses = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -62,6 +69,7 @@ export class CalendarioPage implements OnInit {
     private tarefaService: TarefaService,
     private projetoService: ProjetoService,
     private stringService: StringService,
+    private holidayService: HolidayService,
     private router: Router,
     private toastController: ToastController
   ) {}
@@ -69,6 +77,7 @@ export class CalendarioPage implements OnInit {
   async ngOnInit() {
     await this.carregarProjetos();
     await this.carregarTarefas();
+    await this.carregarFeriados(); // Carrega feriados de Portugal
     this.gerarCalendario();
   }
 
@@ -96,6 +105,33 @@ export class CalendarioPage implements OnInit {
       await this.mostrarToast(this.getString('mensagens.erro.geral'), 'danger');
     } finally {
       this.loading = false;
+    }
+  }
+
+  /**
+   * Carrega feriados para o ano atual e adjacentes
+   * Usa configuração salva para o país
+   */
+  async carregarFeriados() {
+    try {
+      this.loadingFeriados = true;
+      const anoAtual = this.anoAtual;
+      // Carrega feriados do ano anterior, atual e próximo (usa configuração salva)
+      const holidaysMap = await this.holidayService.getHolidaysRange(anoAtual - 1, anoAtual + 1);
+      
+      this.feriados.clear();
+      holidaysMap.forEach((holidays, year) => {
+        holidays.forEach(holiday => {
+          this.feriados.set(holiday.date, holiday);
+        });
+      });
+      
+      console.log(`[Calendario] ${this.feriados.size} feriados carregados`);
+    } catch (error) {
+      console.warn('Erro ao carregar feriados (app continua funcionando):', error);
+      // Não mostra erro ao usuário, app continua funcionando normalmente
+    } finally {
+      this.loadingFeriados = false;
     }
   }
 
@@ -172,6 +208,9 @@ export class CalendarioPage implements OnInit {
     const dataComparar = new Date(data);
     dataComparar.setHours(0, 0, 0, 0);
     
+    // Verifica se é feriado
+    const feriado = this.feriados.get(chave);
+    
     return {
       data: new Date(data),
       numero: data.getDate(),
@@ -179,7 +218,9 @@ export class CalendarioPage implements OnInit {
       temAtrasadas: !!grupo && grupo.temAtrasadas,
       quantidade: grupo ? grupo.tarefas.length : 0,
       isMesAtual,
-      isHoje: dataComparar.getTime() === hoje.getTime()
+      isHoje: dataComparar.getTime() === hoje.getTime(),
+      isFeriado: !!feriado,
+      nomeFeriado: feriado ? feriado.localName : null
     };
   }
 
@@ -206,6 +247,11 @@ export class CalendarioPage implements OnInit {
     }
     
     this.dataSelecionada = new Date(dia.data);
+    
+    // Verifica se há feriado na data selecionada
+    const chave = this.formatarDataChave(this.dataSelecionada);
+    this.feriadoSelecionado = this.feriados.get(chave) || null;
+    
     this.filtrarTarefasDataSelecionada();
   }
 
@@ -221,27 +267,53 @@ export class CalendarioPage implements OnInit {
   /**
    * Navega para o mês anterior
    */
-  mesAnterior() {
+  async mesAnterior() {
     if (this.mesAtual === 0) {
       this.mesAtual = 11;
       this.anoAtual--;
     } else {
       this.mesAtual--;
     }
+    // Carrega feriados se necessário (ano mudou)
+    await this.verificarECarregarFeriados();
     this.gerarCalendario();
   }
 
   /**
    * Navega para o próximo mês
    */
-  mesProximo() {
+  async mesProximo() {
     if (this.mesAtual === 11) {
       this.mesAtual = 0;
       this.anoAtual++;
     } else {
       this.mesAtual++;
     }
+    // Carrega feriados se necessário (ano mudou)
+    await this.verificarECarregarFeriados();
     this.gerarCalendario();
+  }
+
+  /**
+   * Verifica se precisa carregar feriados para o ano atual
+   */
+  private async verificarECarregarFeriados() {
+    const anoAtual = this.anoAtual;
+    const anosCarregados = new Set<number>();
+    
+    // Verifica quais anos já estão carregados
+    this.feriados.forEach((holiday, dateStr) => {
+      const year = parseInt(dateStr.split('-')[0]);
+      anosCarregados.add(year);
+    });
+    
+    // Se o ano atual não está carregado, carrega (usa configuração salva)
+    if (!anosCarregados.has(anoAtual)) {
+      const holidays = await this.holidayService.getHolidays(anoAtual);
+      holidays.forEach(holiday => {
+        this.feriados.set(holiday.date, holiday);
+      });
+    }
   }
 
   /**

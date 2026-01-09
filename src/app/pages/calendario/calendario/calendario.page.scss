@@ -13,7 +13,7 @@
 
   p {
     color: var(--text-secondary);
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
     font-size: 13px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -46,7 +46,7 @@
       font-weight: 600;
       color: var(--text-primary);
       letter-spacing: 0.5px;
-      font-family: var(--font-mono);
+      font-family: var(--font-dotmatrix) !important;
       text-transform: uppercase;
     }
   }
@@ -96,7 +96,7 @@
     color: var(--text-secondary);
     padding: 8px 4px;
     text-transform: uppercase;
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
     letter-spacing: 0.5px;
   }
 }
@@ -131,7 +131,17 @@
       font-size: 13px;
       font-weight: 500;
       color: var(--text-primary);
-      font-family: var(--font-mono);
+      font-family: var(--font-dotmatrix) !important;
+    }
+
+    .indicador-feriado {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      
+      ion-icon {
+        font-size: 12px;
+      }
     }
 
     .indicador-tarefas {
@@ -142,7 +152,7 @@
         min-width: 16px;
         height: 16px;
         padding: 2px 4px;
-        font-family: var(--font-mono);
+        font-family: var(--font-dotmatrix) !important;
         font-weight: 600;
 
         &.badge-grande {
@@ -190,6 +200,16 @@
       border-left: 3px solid var(--ion-color-danger);
       background: rgba(var(--ion-color-danger-rgb), 0.1);
     }
+
+    &.tem-feriado {
+      background: rgba(var(--ion-color-warning-rgb), 0.1);
+      border-top: 2px solid var(--ion-color-warning);
+      
+      .numero-dia {
+        color: var(--ion-color-warning);
+        font-weight: 600;
+      }
+    }
   }
 }
 
@@ -204,7 +224,7 @@
     font-weight: 600;
     margin-bottom: 12px;
     color: var(--text-primary);
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -238,12 +258,17 @@
         border-left: 3px solid var(--ion-color-danger);
         background: rgba(var(--ion-color-danger-rgb), 0.1);
       }
+
+      &.feriado {
+        background: rgba(var(--ion-color-warning-rgb), 0.1);
+        border-top: 2px solid var(--ion-color-warning);
+      }
     }
 
     span {
       font-size: 13px;
       color: var(--text-secondary);
-      font-family: var(--font-sans);
+      font-family: var(--font-dotmatrix) !important;
     }
   }
 }
@@ -262,6 +287,64 @@
   }
 }
 
+.feriado-card {
+  flex-shrink: 0;
+  background: rgba(var(--ion-color-warning-rgb), 0.1);
+  border: 1px solid var(--ion-color-warning);
+
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-dotmatrix) !important;
+      color: var(--ion-color-warning);
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .feriado-info {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 8px 0;
+      font-family: var(--font-dotmatrix) !important;
+    }
+
+    .feriado-nome-internacional {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin: 0 0 8px 0;
+      font-family: var(--font-dotmatrix) !important;
+    }
+
+    .feriado-data {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 0 0 12px 0;
+      font-family: var(--font-dotmatrix) !important;
+    }
+
+    .feriado-tipos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+
+      ion-chip {
+        font-size: 11px;
+        font-family: var(--font-dotmatrix) !important;
+        height: 24px;
+      }
+    }
+  }
+}
+
 .sem-tarefas-card {
   flex-shrink: 0;
 }
@@ -270,7 +353,7 @@
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: normal;
-  font-family: var(--font-mono);
+  font-family: var(--font-dotmatrix) !important;
   margin-left: 8px;
 }
 
@@ -288,7 +371,7 @@
   p {
     color: var(--text-secondary);
     font-size: 13px;
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
     letter-spacing: 0.3px;
   }
 }
@@ -317,7 +400,7 @@ ion-item {
     font-size: 12px;
     color: var(--text-secondary);
     margin: 2px 0;
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
   }
 
   &.tarefa-atraso {

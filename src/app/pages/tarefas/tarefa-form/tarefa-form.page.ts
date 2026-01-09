@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController, ActionSheetController } from '@ionic/angular';
+import { ToastController, ActionSheetController, AlertController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { TarefaService } from '../../../services/tarefa.service';
 import { ProjetoService } from '../../../services/projeto.service';
 import { StringService } from '../../../services/string.service';
-import { Tarefa, TarefaCreate } from '../../../models/tarefa.model';
+import { Tarefa, TarefaCreate, ConfiguracaoNotificacao } from '../../../models/tarefa.model';
 import { Projeto } from '../../../models/projeto.model';
 
 /**
@@ -24,12 +24,16 @@ export class TarefaFormPage implements OnInit {
     titulo: string;
     descricao: string;
     dataLimite: string; // String para ion-datetime
+    horaInicio: string; // String para ion-datetime (HH:mm)
+    horaFim: string; // String para ion-datetime (HH:mm)
     projetoId: string;
     imagem?: string;
   } = {
     titulo: '',
     descricao: '',
     dataLimite: new Date().toISOString().split('T')[0],
+    horaInicio: this.obterHoraAtual(),
+    horaFim: '',
     projetoId: ''
   };
   
@@ -41,6 +45,13 @@ export class TarefaFormPage implements OnInit {
   imagemPreview: string | null = null;
   dataMinima: string = '';
   dataMaxima: string = '';
+  
+  // Configuração de notificação
+  tipoNotificacao: '30min' | '1hora' | '1dia' | 'custom' = '30min';
+  dataHoraCustom: string = '';
+  horaCustom: string = '';
+  somAlarme: 'default' | 'alarm' | 'notification' = 'default';
+  mostrarConfigCustom = false;
 
   constructor(
     private tarefaService: TarefaService,
@@ -49,7 +60,8 @@ export class TarefaFormPage implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private toastController: ToastController,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private alertController: AlertController
   ) {}
 
   async ngOnInit() {
@@ -80,7 +92,44 @@ export class TarefaFormPage implements OnInit {
         // Seleciona primeiro projeto por padrão
         this.tarefa.projetoId = this.projetos[0].id;
       }
+      // Define hora de início como hora atual por padrão
+      this.tarefa.horaInicio = this.obterHoraAtual();
     }
+  }
+
+  /**
+   * Obtém a hora atual no formato ISO para ion-datetime
+   */
+  obterHoraAtual(): string {
+    const agora = new Date();
+    // Formato ISO para ion-datetime (YYYY-MM-DDTHH:mm:ss.sssZ)
+    return agora.toISOString();
+  }
+
+  /**
+   * Converte string de hora (HH:mm ou ISO) para formato ISO para ion-datetime
+   */
+  converterHoraParaISO(hora: string | Date): string {
+    if (!hora) return this.obterHoraAtual();
+    
+    if (hora instanceof Date) {
+      return hora.toISOString();
+    }
+    
+    // Se já está em formato ISO, retorna
+    if (hora.includes('T') || hora.includes('Z')) {
+      return hora;
+    }
+    
+    // Se está em formato HH:mm, converte para ISO
+    if (hora.includes(':')) {
+      const [h, m] = hora.split(':').map(Number);
+      const data = new Date();
+      data.setHours(h, m, 0, 0);
+      return data.toISOString();
+    }
+    
+    return this.obterHoraAtual();
   }
 
   /**
@@ -96,10 +145,24 @@ export class TarefaFormPage implements OnInit {
           titulo: tarefa.titulo,
           descricao: tarefa.descricao,
           dataLimite: tarefa.dataLimite.toISOString().split('T')[0], // Converte para string
+          horaInicio: tarefa.horaInicio ? this.converterHoraParaISO(tarefa.horaInicio) : this.obterHoraAtual(),
+          horaFim: tarefa.horaFim ? this.converterHoraParaISO(tarefa.horaFim) : '',
           projetoId: tarefa.projetoId,
           imagem: tarefa.imagem
         };
         this.imagemPreview = tarefa.imagem || null;
+        
+        // Carrega configuração de notificação se existir
+        if (tarefa.configuracaoNotificacao) {
+          this.tipoNotificacao = tarefa.configuracaoNotificacao.tipo;
+          this.somAlarme = tarefa.configuracaoNotificacao.somAlarme;
+          if (tarefa.configuracaoNotificacao.tipo === 'custom' && tarefa.configuracaoNotificacao.dataHoraCustom) {
+            const dataCustom = new Date(tarefa.configuracaoNotificacao.dataHoraCustom);
+            this.dataHoraCustom = dataCustom.toISOString().split('T')[0];
+            this.horaCustom = this.formatarHora(dataCustom);
+            this.mostrarConfigCustom = true;
+          }
+        }
       } else {
         await this.mostrarToast('Tarefa não encontrada', 'danger');
         this.router.navigate(['/projetos']);
@@ -110,6 +173,15 @@ export class TarefaFormPage implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  /**
+   * Formata Date para string HH:mm
+   */
+  formatarHora(data: Date): string {
+    const horas = data.getHours().toString().padStart(2, '0');
+    const minutos = data.getMinutes().toString().padStart(2, '0');
+    return `${horas}:${minutos}`;
   }
 
   /**
@@ -138,6 +210,25 @@ export class TarefaFormPage implements OnInit {
       this.mostrarToast('A data limite não pode ser no passado', 'warning');
       return false;
     }
+
+    // Valida hora de fim se fornecida
+    if (this.tarefa.horaFim && this.tarefa.horaInicio) {
+      const dataInicio = new Date(this.tarefa.horaInicio);
+      const dataFim = new Date(this.tarefa.horaFim);
+      
+      if (dataFim <= dataInicio) {
+        this.mostrarToast('A hora de fim deve ser posterior à hora de início', 'warning');
+        return false;
+      }
+    }
+
+    // Valida configuração custom se selecionada
+    if (this.tipoNotificacao === 'custom') {
+      if (!this.dataHoraCustom || !this.horaCustom) {
+        this.mostrarToast('Por favor, selecione data e hora para notificação custom', 'warning');
+        return false;
+      }
+    }
     
     return true;
   }
@@ -153,10 +244,49 @@ export class TarefaFormPage implements OnInit {
     try {
       this.loading = true;
 
-      // Converte data para Date object
+      // Converte data e horas para Date objects
+      const dataLimite = new Date(this.tarefa.dataLimite);
+      
+      // Cria hora de início combinando data limite com hora selecionada
+      let horaInicio: Date | undefined;
+      if (this.tarefa.horaInicio) {
+        const dataHoraInicio = new Date(this.tarefa.horaInicio);
+        horaInicio = new Date(dataLimite);
+        horaInicio.setHours(dataHoraInicio.getHours(), dataHoraInicio.getMinutes(), 0, 0);
+      }
+
+      // Cria hora de fim combinando data limite com hora selecionada
+      let horaFim: Date | undefined;
+      if (this.tarefa.horaFim) {
+        const dataHoraFim = new Date(this.tarefa.horaFim);
+        horaFim = new Date(dataLimite);
+        horaFim.setHours(dataHoraFim.getHours(), dataHoraFim.getMinutes(), 0, 0);
+      }
+
+      // Cria configuração de notificação
+      let configuracaoNotificacao: ConfiguracaoNotificacao | undefined;
+      if (this.tipoNotificacao) {
+        configuracaoNotificacao = {
+          tipo: this.tipoNotificacao,
+          somAlarme: this.somAlarme
+        };
+        
+        if (this.tipoNotificacao === 'custom' && this.dataHoraCustom && this.horaCustom) {
+          const [hora, minuto] = this.horaCustom.split(':').map(Number);
+          const dataCustom = new Date(this.dataHoraCustom);
+          dataCustom.setHours(hora, minuto, 0, 0);
+          configuracaoNotificacao.dataHoraCustom = dataCustom;
+        }
+      }
+
       const tarefaData: TarefaCreate = {
-        ...this.tarefa,
-        dataLimite: new Date(this.tarefa.dataLimite),
+        titulo: this.tarefa.titulo,
+        descricao: this.tarefa.descricao,
+        dataLimite: dataLimite,
+        horaInicio: horaInicio,
+        horaFim: horaFim,
+        configuracaoNotificacao: configuracaoNotificacao,
+        projetoId: this.tarefa.projetoId,
         imagem: this.imagemPreview || undefined
       };
 
@@ -306,6 +436,148 @@ export class TarefaFormPage implements OnInit {
     });
 
     await actionSheet.present();
+  }
+
+  /**
+   * Altera o tipo de notificação
+   */
+  alterarTipoNotificacao() {
+    this.mostrarConfigCustom = this.tipoNotificacao === 'custom';
+    if (!this.mostrarConfigCustom) {
+      this.dataHoraCustom = '';
+      this.horaCustom = '';
+    }
+  }
+
+  /**
+   * Formata hora para exibição (HH:mm)
+   */
+  formatarHoraParaExibicao(hora: string | undefined): string {
+    if (!hora) return '';
+    try {
+      const data = new Date(hora);
+      const horas = data.getHours().toString().padStart(2, '0');
+      const minutos = data.getMinutes().toString().padStart(2, '0');
+      return `${horas}:${minutos}`;
+    } catch (e) {
+      return hora;
+    }
+  }
+
+  /**
+   * Abre seletor de hora usando Alert
+   */
+  async abrirSeletorHora(tipo: 'inicio' | 'fim') {
+    const horaAtual = tipo === 'inicio' ? this.tarefa.horaInicio : this.tarefa.horaFim;
+    let horaSelecionada = horaAtual || this.obterHoraAtual();
+    const horaFormatada = this.formatarHoraParaExibicao(horaSelecionada);
+
+    const alert = await this.alertController.create({
+      header: tipo === 'inicio' ? 'Selecionar Hora de Início' : 'Selecionar Hora de Fim',
+      inputs: [
+        {
+          name: 'hora',
+          type: 'time',
+          value: horaFormatada
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Confirmar',
+          handler: (data) => {
+            if (data.hora) {
+              // Converte HH:mm para ISO
+              const [hora, minuto] = data.hora.split(':').map(Number);
+              const dataHora = new Date();
+              dataHora.setHours(hora, minuto, 0, 0);
+              
+              if (tipo === 'inicio') {
+                this.tarefa.horaInicio = dataHora.toISOString();
+              } else {
+                this.tarefa.horaFim = dataHora.toISOString();
+              }
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Abre seletor de data custom para notificação
+   */
+  async abrirSeletorDataCustom() {
+    const alert = await this.alertController.create({
+      header: 'Selecionar Data da Notificação',
+      inputs: [
+        {
+          name: 'data',
+          type: 'date',
+          value: this.dataHoraCustom || new Date().toISOString().split('T')[0]
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Confirmar',
+          handler: (data) => {
+            if (data.data) {
+              this.dataHoraCustom = data.data;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Abre seletor de hora custom para notificação
+   */
+  async abrirSeletorHoraCustom() {
+    const horaAtual = this.horaCustom || this.obterHoraAtual();
+    const horaFormatada = this.formatarHoraParaExibicao(horaAtual);
+
+    const alert = await this.alertController.create({
+      header: 'Selecionar Hora da Notificação',
+      inputs: [
+        {
+          name: 'hora',
+          type: 'time',
+          value: horaFormatada
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Confirmar',
+          handler: (data) => {
+            if (data.hora) {
+              // Converte HH:mm para ISO
+              const [hora, minuto] = data.hora.split(':').map(Number);
+              const dataHora = new Date();
+              dataHora.setHours(hora, minuto, 0, 0);
+              this.horaCustom = dataHora.toISOString();
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   /**

@@ -71,9 +71,14 @@
                 [class.dia-selecionado]="formatarDataChave(dia.data) === formatarDataChave(dataSelecionada)"
                 [class.tem-tarefas]="dia.temTarefas"
                 [class.tem-atrasadas]="dia.temAtrasadas"
+                [class.tem-feriado]="dia.isFeriado"
                 (click)="selecionarData(dia)"
+                [title]="dia.isFeriado ? dia.nomeFeriado : ''"
               >
                 <span class="numero-dia">{{ dia.numero }}</span>
+                <div *ngIf="dia.isFeriado" class="indicador-feriado">
+                  <ion-icon name="star" color="warning"></ion-icon>
+                </div>
                 <div *ngIf="dia.temTarefas" class="indicador-tarefas">
                   <ion-badge 
                     [color]="dia.temAtrasadas ? 'danger' : 'primary'"
@@ -108,6 +113,10 @@
               <div class="legenda-item">
                 <div class="legenda-cor atrasadas"></div>
                 <span>Com Tarefas em Atraso</span>
+              </div>
+              <div class="legenda-item">
+                <div class="legenda-cor feriado"></div>
+                <span>Feriado</span>
               </div>
             </div>
           </ion-card-content>
@@ -162,8 +171,32 @@
           </ion-card-content>
         </ion-card>
 
+        <!-- Informação do Feriado -->
+        <ion-card *ngIf="feriadoSelecionado && !loading" class="feriado-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="star" color="warning"></ion-icon>
+              Feriado
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="feriado-info">
+              <h3>{{ feriadoSelecionado.localName }}</h3>
+              <p *ngIf="feriadoSelecionado.name !== feriadoSelecionado.localName" class="feriado-nome-internacional">
+                {{ feriadoSelecionado.name }}
+              </p>
+              <p class="feriado-data">{{ dataSelecionada | date:'dd/MM/yyyy' }}</p>
+              <div *ngIf="feriadoSelecionado.types && feriadoSelecionado.types.length > 0" class="feriado-tipos">
+                <ion-chip *ngFor="let tipo of feriadoSelecionado.types" color="warning" outline="true">
+                  {{ tipo }}
+                </ion-chip>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
         <!-- Mensagem quando não há tarefas na data selecionada -->
-        <ion-card *ngIf="tarefasDataSelecionada.length === 0 && !loading" class="sem-tarefas-card">
+        <ion-card *ngIf="tarefasDataSelecionada.length === 0 && !feriadoSelecionado && !loading" class="sem-tarefas-card">
           <ion-card-content>
             <div class="sem-tarefas">
               <ion-icon name="calendar-outline" size="large"></ion-icon>

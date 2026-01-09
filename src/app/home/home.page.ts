@@ -5,10 +5,12 @@ import { ProjetoService } from '../services/projeto.service';
 import { TarefaService } from '../services/tarefa.service';
 import { NotaService } from '../services/nota.service';
 import { StringService } from '../services/string.service';
+import { WeatherService } from '../services/api/weather.service';
 import { Categoria } from '../models/categoria.model';
 import { Projeto } from '../models/projeto.model';
 import { Tarefa } from '../models/tarefa.model';
 import { Nota } from '../models/nota.model';
+import { WeatherData } from '../models/api.models';
 
 /**
  * Página inicial da aplicação
@@ -32,6 +34,8 @@ export class HomePage implements OnInit {
   ultimasNotas: Nota[] = [];
   dataAtual: Date = new Date();
   loading = true;
+  currentWeather: WeatherData | null = null;
+  loadingWeather = false;
   stats = {
     totalCategorias: 0,
     totalProjetos: 0,
@@ -45,11 +49,13 @@ export class HomePage implements OnInit {
     private tarefaService: TarefaService,
     private notaService: NotaService,
     private stringService: StringService,
+    private weatherService: WeatherService,
     private router: Router
   ) {}
 
   async ngOnInit() {
     await this.carregarDados();
+    await this.carregarClima(); // Carrega clima de Portugal
   }
 
   /**
@@ -57,6 +63,7 @@ export class HomePage implements OnInit {
    */
   async ionViewWillEnter() {
     await this.carregarDados();
+    await this.carregarClima(); // Recarrega clima
   }
 
   /**
@@ -108,6 +115,30 @@ export class HomePage implements OnInit {
       console.error('Erro ao carregar dados:', error);
     } finally {
       this.loading = false;
+    }
+  }
+
+  /**
+   * Carrega dados meteorológicos de Portugal
+   */
+  async carregarClima() {
+    if (!this.weatherService.isConfigured()) {
+      console.log('[Home] WeatherService não configurado, pulando carregamento de clima');
+      return;
+    }
+
+    try {
+      this.loadingWeather = true;
+      // Usa configurações salvas (city e countryCode são opcionais)
+      this.currentWeather = await this.weatherService.getCurrentWeather();
+      if (this.currentWeather) {
+        console.log('[Home] Clima carregado:', this.currentWeather);
+      }
+    } catch (error) {
+      console.warn('[Home] Erro ao carregar clima (app continua funcionando):', error);
+      // Não mostra erro ao usuário, app continua funcionando
+    } finally {
+      this.loadingWeather = false;
     }
   }
 

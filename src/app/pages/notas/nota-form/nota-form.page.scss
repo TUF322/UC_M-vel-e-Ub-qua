@@ -18,7 +18,7 @@
 
   p {
     color: var(--text-secondary);
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
     font-size: 12px;
   }
 }
@@ -28,7 +28,7 @@
   align-items: center;
   gap: 8px;
   color: var(--ion-color-warning);
-  font-family: var(--font-mono);
+  font-family: var(--font-dotmatrix) !important;
   font-size: 12px;
   margin-top: 4px;
 

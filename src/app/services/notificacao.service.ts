@@ -73,7 +73,7 @@ export class NotificacaoService {
 
   /**
    * Agenda notificações para uma tarefa
-   * Cria notificações para os dias configurados antes da data limite
+   * Usa configuração personalizada da tarefa se disponível, senão usa padrão
    * @param tarefa - Tarefa para agendar notificações
    */
   async agendarNotificacoesTarefa(tarefa: Tarefa): Promise<void> {
@@ -93,6 +93,13 @@ export class NotificacaoService {
     // Cancela notificações antigas desta tarefa
     await this.cancelarNotificacoesTarefa(tarefa.id);
 
+    // Se a tarefa tem configuração personalizada, usa ela
+    if (tarefa.configuracaoNotificacao) {
+      await this.agendarNotificacaoPersonalizada(tarefa);
+      return;
+    }
+
+    // Caso contrário, usa configuração padrão (compatibilidade com tarefas antigas)
     const dataLimite = new Date(tarefa.dataLimite);
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
@@ -165,6 +172,83 @@ export class NotificacaoService {
   }
 
   /**
+   * Agenda notificação usando configuração personalizada da tarefa
+   * @param tarefa - Tarefa com configuração personalizada
+   */
+  private async agendarNotificacaoPersonalizada(tarefa: Tarefa): Promise<void> {
+    if (!tarefa.configuracaoNotificacao || !tarefa.horaInicio) {
+      return;
+    }
+
+    const config = tarefa.configuracaoNotificacao;
+    const horaInicio = new Date(tarefa.horaInicio);
+    let dataNotificacao: Date;
+
+    // Calcula data/hora da notificação baseado no tipo
+    switch (config.tipo) {
+      case '30min':
+        dataNotificacao = new Date(horaInicio);
+        dataNotificacao.setMinutes(dataNotificacao.getMinutes() - 30);
+        break;
+      case '1hora':
+        dataNotificacao = new Date(horaInicio);
+        dataNotificacao.setHours(dataNotificacao.getHours() - 1);
+        break;
+      case '1dia':
+        dataNotificacao = new Date(horaInicio);
+        dataNotificacao.setDate(dataNotificacao.getDate() - 1);
+        break;
+      case 'custom':
+        if (!config.dataHoraCustom) {
+          return;
+        }
+        dataNotificacao = new Date(config.dataHoraCustom);
+        break;
+      default:
+        // Fallback para 30min
+        dataNotificacao = new Date(horaInicio);
+        dataNotificacao.setMinutes(dataNotificacao.getMinutes() - 30);
+    }
+
+    // Verifica se a data de notificação já passou
+    if (dataNotificacao < new Date()) {
+      console.log(`Data de notificação já passou para tarefa ${tarefa.id}`);
+      return;
+    }
+
+    // Determina som do alarme
+    let sound: string = 'default';
+    if (config.somAlarme === 'alarm') {
+      sound = 'alarm';
+    } else if (config.somAlarme === 'notification') {
+      sound = 'notification';
+    }
+
+    const id = this.gerarIdNotificacao(tarefa.id, 0);
+    
+    const notificacao = {
+      id,
+      title: tarefa.titulo,
+      body: `Tarefa: ${tarefa.titulo}`,
+      schedule: { at: dataNotificacao },
+      sound: sound,
+      attachments: undefined,
+      actionTypeId: '',
+      extra: {
+        tarefaId: tarefa.id,
+        tipo: 'tarefa_personalizada'
+      }
+    };
+
+    try {
+      await LocalNotifications.schedule({ notifications: [notificacao] });
+      console.log(`Notificação personalizada agendada para tarefa ${tarefa.id} em ${dataNotificacao.toISOString()}`);
+    } catch (error) {
+      console.error('Erro ao agendar notificação personalizada:', error);
+    }
+  }
+
+  /**
    * Cancela todas as notificações de uma tarefa
    * @param tarefaId - ID da tarefa
    */
@@ -177,9 +261,12 @@ export class NotificacaoService {
       const ids: number[] = [];
       
       // Gera IDs de todas as notificações possíveis desta tarefa
+      // Inclui notificações padrão (por dias antes) e personalizada (id base)
       for (const diasAntes of this.config.diasAntes) {
         ids.push(this.gerarIdNotificacao(tarefaId, diasAntes));
       }
+      // Adiciona ID base para notificações personalizadas
+      ids.push(this.gerarIdNotificacao(tarefaId, 0));
 
       // Converte para o formato esperado
       const notifications = ids.map(id => ({ id }));

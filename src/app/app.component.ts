@@ -11,6 +11,7 @@ import { DatabaseService } from './services/database.service';
 import { StringService } from './services/string.service';
 import { NotificacaoService } from './services/notificacao.service';
 import { TarefaService } from './services/tarefa.service';
+import { ConfigService } from './services/config.service';
 
 /**
  * Componente principal da aplicação
@@ -33,7 +34,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private dataInitService: DataInitService,
     private stringService: StringService,
     private notificacaoService: NotificacaoService,
-    private tarefaService: TarefaService
+    private tarefaService: TarefaService,
+    private configService: ConfigService
   ) {}
 
   /**
@@ -52,6 +54,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Carrega strings da aplicação
     await this.stringService.loadStrings();
+
+    // Inicializa configurações
+    await this.configService.initialize();
 
     // Inicializa dados (carrega dados iniciais do JSON se necessário)
     await this.dataInitService.initialize();

@@ -22,7 +22,7 @@ ion-menu ion-toolbar {
     letter-spacing: 1px;
     font-size: 16px;
     text-transform: uppercase;
-    font-family: var(--font-mono);
+    font-family: var(--font-dotmatrix) !important;
   }
 }
 
@@ -54,7 +54,7 @@ ion-menu ion-item {
     font-size: 14px;
     color: var(--text-primary);
     letter-spacing: 0.3px;
-    font-family: var(--font-sans);
+    font-family: var(--font-dotmatrix) !important;
   }
   
   &:hover {

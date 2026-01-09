@@ -71,6 +71,8 @@ export class DatabaseService {
 
         // Cria tabelas
         await this.createTables();
+        // Executa migrações
+        await this.executarMigracoes();
         console.log('SQLite inicializado com sucesso');
       } else {
         this.db = await connection.retrieveConnection(this.DB_NAME, false);
@@ -112,6 +114,9 @@ export class DatabaseService {
         titulo TEXT NOT NULL,
         descricao TEXT,
         data_limite TEXT NOT NULL,
+        hora_inicio TEXT,
+        hora_fim TEXT,
+        configuracao_notificacao TEXT,
         imagem TEXT,
         projeto_id TEXT NOT NULL,
         ordem INTEGER NOT NULL DEFAULT 0,
@@ -139,6 +144,37 @@ export class DatabaseService {
 
     for (const query of queries) {
       await this.db.execute(query);
+    }
+  }
+
+  /**
+   * Executa migrações de schema (adiciona colunas novas em tabelas existentes)
+   */
+  private async executarMigracoes(): Promise<void> {
+    if (!this.db) return;
+
+    // Migração: Adiciona colunas novas na tabela tarefas se não existirem
+    const colunasNovas = [
+      { nome: 'hora_inicio', tipo: 'TEXT' },
+      { nome: 'hora_fim', tipo: 'TEXT' },
+      { nome: 'configuracao_notificacao', tipo: 'TEXT' }
+    ];
+
+    for (const coluna of colunasNovas) {
+      try {
+        // Tenta adicionar a coluna (pode falhar se já existir, o que é OK)
+        await this.db.execute(
+          `ALTER TABLE tarefas ADD COLUMN ${coluna.nome} ${coluna.tipo};`
+        );
+        console.log(`Coluna ${coluna.nome} adicionada à tabela tarefas`);
+      } catch (error: any) {
+        // Ignora erro se a coluna já existir
+        if (error && error.message && error.message.includes('duplicate column')) {
+          // Coluna já existe, tudo bem
+        } else {
+          console.warn(`Erro ao adicionar coluna ${coluna.nome}:`, error);
+        }
+      }
     }
   }
 
@@ -253,14 +289,17 @@ export class DatabaseService {
   async saveTarefaSQLite(tarefa: any): Promise<void> {
     if (!this.isUsingSQLite()) return;
     const query = `
-      INSERT OR REPLACE INTO tarefas (id, titulo, descricao, data_limite, imagem, projeto_id, ordem, concluida, data_criacao)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO tarefas (id, titulo, descricao, data_limite, hora_inicio, hora_fim, configuracao_notificacao, imagem, projeto_id, ordem, concluida, data_criacao)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     await this.execute(query, [
       tarefa.id,
       tarefa.titulo,
       tarefa.descricao || null,
       tarefa.dataLimite instanceof Date ? tarefa.dataLimite.toISOString() : tarefa.dataLimite,
+      tarefa.horaInicio ? (tarefa.horaInicio instanceof Date ? tarefa.horaInicio.toISOString() : tarefa.horaInicio) : null,
+      tarefa.horaFim ? (tarefa.horaFim instanceof Date ? tarefa.horaFim.toISOString() : tarefa.horaFim) : null,
+      tarefa.configuracaoNotificacao ? JSON.stringify(tarefa.configuracaoNotificacao) : null,
       tarefa.imagem || null,
       tarefa.projetoId,
       tarefa.ordem || 0,

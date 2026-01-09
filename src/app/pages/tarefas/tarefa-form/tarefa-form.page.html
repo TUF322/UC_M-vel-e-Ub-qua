@@ -85,6 +85,80 @@
             </ng-template>
           </ion-modal>
         </ion-item>
+
+        <!-- Campo Hora de Início -->
+        <ion-item button (click)="abrirSeletorHora('inicio')">
+          <ion-label position="stacked">Hora de Início</ion-label>
+          <ion-input
+            [value]="formatarHoraParaExibicao(tarefa.horaInicio)"
+            placeholder="Selecione a hora"
+            readonly
+          ></ion-input>
+          <ion-icon slot="end" name="time-outline"></ion-icon>
+        </ion-item>
+
+        <!-- Campo Hora de Fim -->
+        <ion-item button (click)="abrirSeletorHora('fim')">
+          <ion-label position="stacked">Hora de Fim (opcional)</ion-label>
+          <ion-input
+            [value]="formatarHoraParaExibicao(tarefa.horaFim)"
+            placeholder="Selecione a hora"
+            readonly
+          ></ion-input>
+          <ion-icon slot="end" name="time-outline"></ion-icon>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Configuração de Notificação -->
+    <ion-card *ngIf="!loading">
+      <ion-card-header>
+        <ion-card-title>Notificação</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Tipo de Notificação -->
+        <ion-item>
+          <ion-label position="stacked">Notificar antes</ion-label>
+          <ion-select [(ngModel)]="tipoNotificacao" (ionChange)="alterarTipoNotificacao()">
+            <ion-select-option value="30min">30 minutos antes</ion-select-option>
+            <ion-select-option value="1hora">1 hora antes</ion-select-option>
+            <ion-select-option value="1dia">1 dia antes</ion-select-option>
+            <ion-select-option value="custom">Personalizado</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Configuração Custom -->
+        <div *ngIf="mostrarConfigCustom">
+          <ion-item button (click)="abrirSeletorDataCustom()">
+            <ion-label position="stacked">Data da Notificação</ion-label>
+            <ion-input
+              [value]="dataHoraCustom ? (dataHoraCustom | date:'dd/MM/yyyy') : ''"
+              placeholder="Selecione a data"
+              readonly
+            ></ion-input>
+            <ion-icon slot="end" name="calendar-outline"></ion-icon>
+          </ion-item>
+
+          <ion-item button (click)="abrirSeletorHoraCustom()">
+            <ion-label position="stacked">Hora da Notificação</ion-label>
+            <ion-input
+              [value]="formatarHoraParaExibicao(horaCustom)"
+              placeholder="Selecione a hora"
+              readonly
+            ></ion-input>
+            <ion-icon slot="end" name="time-outline"></ion-icon>
+          </ion-item>
+        </div>
+
+        <!-- Som do Alarme -->
+        <ion-item>
+          <ion-label position="stacked">Som do Alarme</ion-label>
+          <ion-select [(ngModel)]="somAlarme">
+            <ion-select-option value="default">Padrão</ion-select-option>
+            <ion-select-option value="alarm">Alarme</ion-select-option>
+            <ion-select-option value="notification">Notificação</ion-select-option>
+          </ion-select>
+        </ion-item>
       </ion-card-content>
     </ion-card>
 

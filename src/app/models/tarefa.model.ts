@@ -1,4 +1,16 @@
 /**
+ * Configuração de notificação personalizada para tarefa
+ */
+export interface ConfiguracaoNotificacao {
+  /** Tipo de notificação: '30min', '1hora', '1dia', 'custom' */
+  tipo: '30min' | '1hora' | '1dia' | 'custom';
+  /** Data/hora customizada (apenas se tipo = 'custom') */
+  dataHoraCustom?: Date;
+  /** Som do alarme: 'default', 'alarm', 'notification' */
+  somAlarme: 'default' | 'alarm' | 'notification';
+}
+
+/**
  * Modelo de Tarefa
  * Representa uma tarefa associada a um projeto
  */
@@ -14,6 +26,15 @@ export interface Tarefa {
   
   /** Data limite para conclusão da tarefa */
   dataLimite: Date;
+  
+  /** Hora de início da tarefa (opcional) */
+  horaInicio?: Date;
+  
+  /** Hora de fim da tarefa (opcional) */
+  horaFim?: Date;
+  
+  /** Configuração de notificação personalizada (opcional) */
+  configuracaoNotificacao?: ConfiguracaoNotificacao;
   
   /** Caminho ou base64 da imagem da tarefa (opcional) */
   imagem?: string;

@@ -289,6 +289,9 @@ export class TarefaService {
     return {
       ...tarefa,
       dataLimite: tarefa.dataLimite.toISOString(),
+      horaInicio: tarefa.horaInicio ? tarefa.horaInicio.toISOString() : undefined,
+      horaFim: tarefa.horaFim ? tarefa.horaFim.toISOString() : undefined,
+      configuracaoNotificacao: tarefa.configuracaoNotificacao ? JSON.stringify(tarefa.configuracaoNotificacao) : undefined,
       dataCriacao: tarefa.dataCriacao.toISOString()
     };
   }
@@ -297,28 +300,65 @@ export class TarefaService {
    * Deserializa uma tarefa do Storage (converte string para Date)
    */
   private deserializeTarefa(tarefa: any): Tarefa {
-    return {
+    const result: Tarefa = {
       ...tarefa,
       dataLimite: new Date(tarefa.dataLimite),
       dataCriacao: new Date(tarefa.dataCriacao)
     };
+
+    if (tarefa.horaInicio) {
+      result.horaInicio = new Date(tarefa.horaInicio);
+    }
+    if (tarefa.horaFim) {
+      result.horaFim = new Date(tarefa.horaFim);
+    }
+    if (tarefa.configuracaoNotificacao) {
+      try {
+        result.configuracaoNotificacao = typeof tarefa.configuracaoNotificacao === 'string' 
+          ? JSON.parse(tarefa.configuracaoNotificacao) 
+          : tarefa.configuracaoNotificacao;
+      } catch (e) {
+        console.warn('Erro ao deserializar configuracaoNotificacao:', e);
+      }
+    }
+
+    return result;
   }
 
   /**
    * Deserializa uma tarefa do SQLite (converte snake_case para camelCase)
    */
   private deserializeTarefaFromSQLite(tarefa: any): Tarefa {
-    return {
+    const result: Tarefa = {
       id: tarefa.id,
       titulo: tarefa.titulo,
       descricao: tarefa.descricao,
-      dataLimite: new Date(tarefa.data_limite),
+      dataLimite: new Date(tarefa.data_limite || tarefa.dataLimite),
       imagem: tarefa.imagem,
-      projetoId: tarefa.projeto_id,
+      projetoId: tarefa.projeto_id || tarefa.projetoId,
       ordem: tarefa.ordem,
       concluida: tarefa.concluida === 1,
-      dataCriacao: new Date(tarefa.data_criacao)
+      dataCriacao: new Date(tarefa.data_criacao || tarefa.dataCriacao)
     };
+
+    if (tarefa.hora_inicio || tarefa.horaInicio) {
+      result.horaInicio = new Date(tarefa.hora_inicio || tarefa.horaInicio);
+    }
+    if (tarefa.hora_fim || tarefa.horaFim) {
+      result.horaFim = new Date(tarefa.hora_fim || tarefa.horaFim);
+    }
+    if (tarefa.configuracao_notificacao || tarefa.configuracaoNotificacao) {
+      try {
+        const configStr = tarefa.configuracao_notificacao || tarefa.configuracaoNotificacao;
+        result.configuracaoNotificacao = typeof configStr === 'string' 
+          ? JSON.parse(configStr) 
+          : configStr;
+      } catch (e) {
+        console.warn('Erro ao deserializar configuracaoNotificacao do SQLite:', e);
+      }
+    }
+
+    return result;
   }
 }
 
