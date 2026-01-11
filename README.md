@@ -1,235 +1,143 @@
-# Gestão de Tarefas - Aplicação Móvel
+# Gestão de Tarefas
 
-Aplicação móvel desenvolvida com Ionic + Angular (NgModules) para gestão de tarefas, projetos e categorias.
+Aplicação móvel desenvolvida com Ionic/Angular para gestão de tarefas, projetos e notas.
 
-## 🚀 Tecnologias
+## Fases do Projeto
 
-- **Ionic 8** - Framework para desenvolvimento móvel
-- **Angular 20** - Framework web (NgModules)
-- **Capacitor 8** - Runtime nativo
-- **TypeScript** - Linguagem de programação
-- **Ionic Storage** - Persistência de dados local
-- **SQLite** - Base de dados local (via @capacitor-community/sqlite)
+### Fase 1: Estrutura Base
+- [x] Concluída
 
-## 📱 Plugins Capacitor
+### Fase 2: Modelos e Serviços
+- [x] Concluída
 
-A aplicação utiliza os seguintes plugins do Capacitor:
+### Fase 3: Gestão de Categorias
+- [x] Concluída
 
-- **@capacitor/app** - Controlo do ciclo de vida da aplicação
-- **@capacitor/camera** - Captura de imagens para tarefas
-- **@capacitor/haptics** - Feedback háptico (instalado, pronto para uso)
-- **@capacitor/keyboard** - Controlo do teclado virtual
-- **@capacitor/local-notifications** - Notificações locais (instalado, pronto para Fase 9)
-- **@capacitor/screen-orientation** - Controlo de orientação (portrait bloqueado)
-- **@capacitor/status-bar** - Controlo da barra de status
-- **@capacitor-community/sqlite** - Base de dados SQLite local
+### Fase 4: Gestão de Projetos
+- [x] Concluída
 
-## 📦 Instalação
+### Fase 5: Gestão de Tarefas
+- [x] Concluída
+
+### Fase 6: Calendário
+- [x] Concluída
+
+### Fase 7: Navegação e Routing
+- [x] Concluída
+
+### Fase 8: Capacitor e Controlos
+- [x] Concluída
+
+### Fase 9: Notificações
+- [x] Concluída
+
+### Fase 10: Interface e Estilos
+- [x] Concluída
+
+## Pré-requisitos
+
+- [ ] Node.js instalado (v18 ou superior)
+- [ ] Ionic CLI instalado (`npm install -g @ionic/cli`)
+- [ ] Android Studio instalado (para Android)
+- [ ] API key do OpenWeatherMap (opcional, para funcionalidade de clima)
+
+## Instalação e Execução
+
+### 1. Instalar Dependências
+
+Após descarregar o projeto, instale as dependências:
 
 ```bash
-# Instalar dependências
 npm install
+```
 
-# Executar em desenvolvimento
-ionic serve
+### 2. Configurar API Keys (Opcional)
 
-# Build para produção
-npm run build
+Se pretender usar a funcionalidade de clima (OpenWeatherMap):
 
-# Sincronizar Capacitor
+1. Crie um ficheiro `.env` na raiz do projeto
+2. Adicione a sua API key:
+   ```
+   WEATHER_API_KEY=sua_api_key_aqui
+   ```
+3. Execute o script de geração:
+   ```bash
+   npm run generate-env
+   ```
+
+**Nota:** O ficheiro `.env` está no `.gitignore` e não deve ser commitado. Obtenha uma API key gratuita em: https://openweathermap.org/api
+
+### 3. Executar Versão Web
+
+Para desenvolvimento e testes no navegador:
+
+```bash
+npm start
+```
+
+A aplicação estará disponível em `http://localhost:8100`
+
+### 4. Executar no Emulador Android
+
+#### Passo 1: Sincronizar com Capacitor
+
+```bash
 npx cap sync
 ```
 
-## 🏗️ Estrutura do Projeto
+#### Passo 2: Abrir no Android Studio
 
-```
-src/
-├── app/
-│   ├── models/          # Interfaces/Modelos de dados
-│   ├── services/        # Serviços Angular
-│   ├── pages/           # Páginas da aplicação
-│   ├── components/      # Componentes reutilizáveis
-│   ├── data/            # Ficheiros JSON (dados iniciais, strings)
-│   ├── app.module.ts    # Módulo principal
-│   └── app-routing.module.ts  # Rotas principais
-├── assets/              # Recursos estáticos
-├── theme/               # Tema e variáveis CSS
-└── global.scss          # Estilos globais
+```bash
+npx cap open android
 ```
 
-## ✅ Fase 1 - Concluída
+#### Passo 3: Executar no Emulador
 
-- ✅ Projeto Ionic criado com Angular (NgModules)
-- ✅ Estrutura de pastas configurada
-- ✅ Capacitor configurado
-- ✅ Ionic Storage configurado
-- ✅ Routing básico configurado
-- ✅ Cores globais definidas (CSS Custom Properties)
-- ✅ Estilos globais personalizados
-- ✅ Controlo de orientação (portrait)
-- ✅ Dados iniciais em JSON criados
+1. No Android Studio, clique em "Run" (ou pressione Shift+F10)
+2. Selecione o emulador Android desejado
+3. Aguarde a aplicação instalar e iniciar
 
-## ✅ Fase 2 - Concluída
+#### Alternativa: Via linha de comandos (se tiver Android SDK configurado)
 
-- ✅ Interfaces criadas (Categoria, Projeto, Tarefa)
-- ✅ StorageService implementado (wrapper para Ionic Storage)
-- ✅ CategoriaService implementado (CRUD completo)
-- ✅ ProjetoService implementado (CRUD completo)
-- ✅ TarefaService implementado (CRUD + ordenação + movimentação)
-- ✅ StringService implementado (isolamento de strings)
-- ✅ DataInitService implementado (inicialização de dados)
-- ✅ Dados iniciais carregados do JSON
-- ✅ Persistência configurada no Ionic Storage
+```bash
+cd android
+./gradlew installDebug
+adb shell am start -n io.ionic.gestaotarefas/.MainActivity
+```
 
-## ✅ Fase 3 - Concluída
+## Scripts Disponíveis
 
-- ✅ Página de listagem de categorias criada
-- ✅ Página de adicionar/editar categoria criada
-- ✅ Funcionalidade adicionar categoria implementada
-- ✅ Funcionalidade editar categoria implementada
-- ✅ Funcionalidade eliminar categoria implementada
-- ✅ Validação de categoria em uso antes de eliminar
-- ✅ Navegação com parâmetros (ActivatedRoute) implementada
-- ✅ Rotas configuradas com lazy loading
-- ✅ UI completa com ícones, cores e preview
-- ✅ Validações e tratamento de erros implementados
+- `npm start` - Inicia servidor de desenvolvimento (versão web)
+- `npm run build` - Gera build de produção
+- `npm run generate-env` - Gera ficheiros de ambiente a partir do `.env`
+- `npx cap sync` - Sincroniza código web com projetos nativos
+- `npx cap open android` - Abre projeto Android no Android Studio
 
-## ✅ Fase 4 - Concluída
+## Tecnologias
 
-- ✅ Página de listagem de projetos criada
-- ✅ Página de detalhes do projeto criada
-- ✅ Página de adicionar/editar projeto criada
-- ✅ Funcionalidade criar projeto implementada
-- ✅ Funcionalidade editar projeto implementada
-- ✅ Funcionalidade eliminar projeto implementada
-- ✅ Eliminação de tarefas ao eliminar projeto
-- ✅ Filtro por categoria implementado
-- ✅ Visualização por categoria funcionando
-- ✅ Indicador de tarefas em atraso
+- **Ionic 8** - Framework UI móvel
+- **Angular 20** - Framework web
+- **Capacitor 8** - Bridge para funcionalidades nativas
+- **SQLite** - Base de dados local
+- **TypeScript** - Linguagem de programação
 
-## ✅ Fase 5 - Concluída
+## Estrutura do Projeto
 
-- ✅ Página de listagem de tarefas criada
-- ✅ Página de detalhes da tarefa criada
-- ✅ Página de adicionar/editar tarefa criada
-- ✅ Funcionalidade adicionar tarefa implementada
-- ✅ Funcionalidade editar tarefa implementada
-- ✅ Funcionalidade eliminar tarefa implementada
-- ✅ Funcionalidade ordenar tarefas (lógica no service)
-- ✅ Funcionalidade mover tarefa entre projetos
-- ✅ Upload/captura de imagem implementado
-- ✅ Identificação de tarefas em atraso
-- ✅ Filtros de tarefas (todas, pendentes, concluídas, em atraso)
-- ✅ Validação de formulários
-- ✅ Seletor de data (ion-datetime)
-
-## ✅ Fase 6 - Concluída
-
-- ✅ Página de calendário criada
-- ✅ Calendário customizado implementado
-- ✅ Exibição de datas limite das tarefas no calendário
-- ✅ Marcação de dias com tarefas
-- ✅ Diferenciação visual (atraso vs. normal)
-- ✅ Seleção de data funcionando
-- ✅ Lista de tarefas da data selecionada
-- ✅ Navegação para detalhes da tarefa
-- ✅ Edição de tarefa a partir do calendário
-- ✅ Navegação entre meses
-- ✅ Botão para voltar ao mês atual
-
-## ✅ Fase 7 - Concluída
-
-- ✅ Configuração completa de rotas no app-routing.module.ts
-- ✅ Rotas filhas (child routes) configuradas
-- ✅ Navegação com parâmetros implementada (Router, ActivatedRoute)
-- ✅ Menu lateral (sidemenu) criado
-- ✅ Links de navegação: Home, Projetos, Tarefas, Calendário, Categorias
-- ✅ Navegação consistente em toda a aplicação
-- ✅ Botões de menu nas páginas principais
-- ✅ Botões de voltar nas páginas de detalhes e formulários
-- ✅ Passagem de parâmetros entre páginas funcionando
-- ✅ Todas as rotas testadas e funcionando
-
-## ✅ Fase 8 - Concluída
-
-- ✅ Capacitor instalado e configurado
-- ✅ Configuração completa no capacitor.config.ts
-- ✅ Controlo de orientação implementado (portrait bloqueado)
-- ✅ Listener para mudanças de orientação (força portrait se mudar)
-- ✅ Status Bar configurada (tema dark)
-- ✅ Keyboard configurado (melhor UX)
-- ✅ Listener para app state (reconfigura ao voltar ao foreground)
-- ✅ Plugins necessários instalados e configurados
-- ✅ Documentação completa no código
-
-## ✅ Fase 9 - Concluída
-
-- ✅ Plugin de notificações locais instalado (@capacitor/local-notifications)
-- ✅ Serviço de notificações criado (NotificacaoService)
-- ✅ Solicitação de permissões implementada
-- ✅ Agendamento de notificações para tarefas próximas da data limite
-- ✅ Configuração de frequência (3 dias antes, 1 dia antes, no dia)
-- ✅ Integração com TarefaService (agenda ao criar, atualiza ao editar, cancela ao eliminar)
-- ✅ Cancelamento de notificações ao eliminar tarefas
-- ✅ Atualização de notificações ao editar tarefas
-- ✅ Inicialização automática ao iniciar a aplicação
-- ✅ Não agenda notificações para tarefas concluídas
-
-## ✅ Fase 10 - Concluída
-
-- ✅ Design minimalista estilo "nothing" aplicado
-- ✅ Tema dark com cores escuras (#0a0a0a, #121212, #1a1a1a)
-- ✅ Cores roxas como destaque principal
-- ✅ Fontes monospace para elementos tech/console
-- ✅ Cards com bordas finas e estilo clean
-- ✅ Efeitos glow roxo (estilo tech)
-- ✅ Menu lateral minimalista com bordas laterais
-- ✅ Botões estilo console com bordas finas
-- ✅ Inputs com estilo tech
-- ✅ Scrollbar minimalista
-- ✅ Feedback visual melhorado (hover, focus)
-- ✅ Tipografia otimizada (letter-spacing, font-weight)
-- ✅ Espaçamentos consistentes
-- ✅ Animações suaves e transições
-
-## 📋 Próximas Fases
-
-- **Fase 2**: Modelos e Serviços Base
-- **Fase 3**: Gestão de Categorias
-- **Fase 4**: Gestão de Projetos
-- **Fase 5**: Gestão de Tarefas
-- **Fase 6**: Calendário
-- **Fase 7**: Navegação e Routing completo
-- **Fase 8**: Capacitor e Controlos adicionais
-- **Fase 9**: Notificações (opcional)
-- **Fase 10**: Melhorias e Otimizações
-- **Fase 11**: Testes e Validação
-- **Fase 12**: Documentação
-
-## 🎨 Cores Globais
-
-As cores estão definidas em `src/theme/variables.scss`:
-
-- **Categorias**: Escola, Trabalho, Pessoal
-- **Estados de Tarefas**: Atraso, Hoje, Futura, Concluída
-- **Espaçamentos**: xs, sm, md, lg, xl
-
-## 📱 Capacitor
-
-A aplicação está configurada para:
-- Bloquear orientação landscape (portrait apenas)
-- Funcionar em Android e iOS
-- Usar plugins nativos (Camera, Notificações, etc.)
-
-## 📝 Notas
-
-- **SQLite implementado!** A aplicação usa SQLite em dispositivos nativos e Ionic Storage no browser
-- Dados sincronizados entre SQLite e Storage automaticamente
-- A aplicação funciona offline
-- Requisito opcional de base de dados externa cumprido ✅
+```
+gestao-tarefas/
+├── src/
+│   ├── app/
+│   │   ├── pages/          # Páginas da aplicação
+│   │   ├── services/       # Serviços e lógica de negócio
+│   │   ├── models/         # Modelos de dados
+│   │   └── ...
+│   ├── assets/             # Recursos estáticos
+│   └── environments/       # Configurações de ambiente
+├── android/                # Projeto Android nativo
+├── www/                    # Build web
+└── capacitor.config.ts     # Configuração do Capacitor
+```
 
 ---
 
 **Desenvolvido para TPSI - Móvel**
-
-# UC_M-vel-e-Ub-qua

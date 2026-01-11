@@ -292,6 +292,22 @@ export class DatabaseService {
       INSERT OR REPLACE INTO tarefas (id, titulo, descricao, data_limite, hora_inicio, hora_fim, configuracao_notificacao, imagem, projeto_id, ordem, concluida, data_criacao)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
+    // Valida configuracaoNotificacao antes de serializar
+    let configuracaoNotificacaoStr: string | null = null;
+    if (tarefa.configuracaoNotificacao) {
+      // Se tipo é "custom" mas dataHoraCustom é null/undefined/inválido, não serializa
+      if (tarefa.configuracaoNotificacao.tipo === 'custom') {
+        const dataCustom = tarefa.configuracaoNotificacao.dataHoraCustom;
+        if (dataCustom && dataCustom instanceof Date && !isNaN(dataCustom.getTime())) {
+          configuracaoNotificacaoStr = JSON.stringify(tarefa.configuracaoNotificacao);
+        }
+        // Se tipo é "custom" mas dataHoraCustom é inválido, não serializa (retorna null)
+      } else {
+        // Para outros tipos, serializa normalmente
+        configuracaoNotificacaoStr = JSON.stringify(tarefa.configuracaoNotificacao);
+      }
+    }
+
     await this.execute(query, [
       tarefa.id,
       tarefa.titulo,
@@ -299,7 +315,7 @@ export class DatabaseService {
       tarefa.dataLimite instanceof Date ? tarefa.dataLimite.toISOString() : tarefa.dataLimite,
       tarefa.horaInicio ? (tarefa.horaInicio instanceof Date ? tarefa.horaInicio.toISOString() : tarefa.horaInicio) : null,
       tarefa.horaFim ? (tarefa.horaFim instanceof Date ? tarefa.horaFim.toISOString() : tarefa.horaFim) : null,
-      tarefa.configuracaoNotificacao ? JSON.stringify(tarefa.configuracaoNotificacao) : null,
+      configuracaoNotificacaoStr,
       tarefa.imagem || null,
       tarefa.projetoId,
       tarefa.ordem || 0,

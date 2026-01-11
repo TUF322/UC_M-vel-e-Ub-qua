@@ -116,9 +116,15 @@
         <ion-card-title>Notificação</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <!-- Tipo de Notificação -->
+        <!-- Checkbox para ativar/desativar notificações -->
         <ion-item>
-          <ion-label position="stacked">Notificar antes</ion-label>
+          <ion-label>Ativar notificação</ion-label>
+          <ion-checkbox [(ngModel)]="notificarAtivo" (ionChange)="alterarTipoNotificacao()"></ion-checkbox>
+        </ion-item>
+
+        <!-- Tipo de Notificação (só aparece se ativado) -->
+        <ion-item *ngIf="notificarAtivo">
+          <ion-label position="stacked">Notificar quando</ion-label>
           <ion-select [(ngModel)]="tipoNotificacao" (ionChange)="alterarTipoNotificacao()">
             <ion-select-option value="30min">30 minutos antes</ion-select-option>
             <ion-select-option value="1hora">1 hora antes</ion-select-option>
@@ -127,8 +133,8 @@
           </ion-select>
         </ion-item>
 
-        <!-- Configuração Custom -->
-        <div *ngIf="mostrarConfigCustom">
+        <!-- Configuração Custom (só aparece se tipo custom e ativado) -->
+        <div *ngIf="notificarAtivo && mostrarConfigCustom">
           <ion-item button (click)="abrirSeletorDataCustom()">
             <ion-label position="stacked">Data da Notificação</ion-label>
             <ion-input
@@ -149,16 +155,6 @@
             <ion-icon slot="end" name="time-outline"></ion-icon>
           </ion-item>
         </div>
-
-        <!-- Som do Alarme -->
-        <ion-item>
-          <ion-label position="stacked">Som do Alarme</ion-label>
-          <ion-select [(ngModel)]="somAlarme">
-            <ion-select-option value="default">Padrão</ion-select-option>
-            <ion-select-option value="alarm">Alarme</ion-select-option>
-            <ion-select-option value="notification">Notificação</ion-select-option>
-          </ion-select>
-        </ion-item>
       </ion-card-content>
     </ion-card>
 

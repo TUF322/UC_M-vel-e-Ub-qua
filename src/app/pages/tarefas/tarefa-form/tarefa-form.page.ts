@@ -47,10 +47,10 @@ export class TarefaFormPage implements OnInit {
   dataMaxima: string = '';
   
   // Configuração de notificação
+  notificarAtivo: boolean = false;
   tipoNotificacao: '30min' | '1hora' | '1dia' | 'custom' = '30min';
   dataHoraCustom: string = '';
   horaCustom: string = '';
-  somAlarme: 'default' | 'alarm' | 'notification' = 'default';
   mostrarConfigCustom = false;
 
   constructor(
@@ -154,8 +154,8 @@ export class TarefaFormPage implements OnInit {
         
         // Carrega configuração de notificação se existir
         if (tarefa.configuracaoNotificacao) {
+          this.notificarAtivo = true;
           this.tipoNotificacao = tarefa.configuracaoNotificacao.tipo;
-          this.somAlarme = tarefa.configuracaoNotificacao.somAlarme;
           if (tarefa.configuracaoNotificacao.tipo === 'custom' && tarefa.configuracaoNotificacao.dataHoraCustom) {
             const dataCustom = new Date(tarefa.configuracaoNotificacao.dataHoraCustom);
             this.dataHoraCustom = dataCustom.toISOString().split('T')[0];
@@ -222,11 +222,22 @@ export class TarefaFormPage implements OnInit {
       }
     }
 
-    // Valida configuração custom se selecionada
-    if (this.tipoNotificacao === 'custom') {
-      if (!this.dataHoraCustom || !this.horaCustom) {
-        this.mostrarToast('Por favor, selecione data e hora para notificação custom', 'warning');
-        return false;
+    // Valida configuração de notificação se ativada
+    if (this.notificarAtivo) {
+      // Valida tipo custom - precisa de data e hora customizadas
+      if (this.tipoNotificacao === 'custom') {
+        if (!this.dataHoraCustom || !this.horaCustom) {
+          this.mostrarToast('Por favor, selecione data e hora para notificação custom', 'warning');
+          return false;
+        }
+      }
+      
+      // Valida tipos que precisam de horaInicio (30min, 1hora, 1dia)
+      if (this.tipoNotificacao === '30min' || this.tipoNotificacao === '1hora' || this.tipoNotificacao === '1dia') {
+        if (!this.tarefa.horaInicio) {
+          this.mostrarToast(`Para notificação "${this.tipoNotificacao}", é necessário definir a hora de início`, 'warning');
+          return false;
+        }
       }
     }
     
@@ -263,19 +274,27 @@ export class TarefaFormPage implements OnInit {
         horaFim.setHours(dataHoraFim.getHours(), dataHoraFim.getMinutes(), 0, 0);
       }
 
-      // Cria configuração de notificação
+      // Cria configuração de notificação apenas se ativada
       let configuracaoNotificacao: ConfiguracaoNotificacao | undefined;
-      if (this.tipoNotificacao) {
-        configuracaoNotificacao = {
-          tipo: this.tipoNotificacao,
-          somAlarme: this.somAlarme
-        };
-        
-        if (this.tipoNotificacao === 'custom' && this.dataHoraCustom && this.horaCustom) {
-          const [hora, minuto] = this.horaCustom.split(':').map(Number);
-          const dataCustom = new Date(this.dataHoraCustom);
-          dataCustom.setHours(hora, minuto, 0, 0);
-          configuracaoNotificacao.dataHoraCustom = dataCustom;
+      if (this.notificarAtivo && this.tipoNotificacao) {
+        // Para tipo custom, só cria se dataHoraCustom e horaCustom estiverem definidos
+        if (this.tipoNotificacao === 'custom') {
+          if (this.dataHoraCustom && this.horaCustom) {
+            const [hora, minuto] = this.horaCustom.split(':').map(Number);
+            const dataCustom = new Date(this.dataHoraCustom);
+            dataCustom.setHours(hora, minuto, 0, 0);
+            configuracaoNotificacao = {
+              tipo: this.tipoNotificacao,
+              dataHoraCustom: dataCustom
+            };
+          }
+          // Se tipo é custom mas não tem dataHoraCustom definido, não cria configuracaoNotificacao
+          // (a validação já impediu salvar, mas garantimos que não cria objeto inválido)
+        } else {
+          // Para outros tipos (30min, 1hora, 1dia), cria normalmente
+          configuracaoNotificacao = {
+            tipo: this.tipoNotificacao
+          };
         }
       }
 
@@ -442,6 +461,12 @@ export class TarefaFormPage implements OnInit {
    * Altera o tipo de notificação
    */
   alterarTipoNotificacao() {
+    if (!this.notificarAtivo) {
+      this.mostrarConfigCustom = false;
+      this.dataHoraCustom = '';
+      this.horaCustom = '';
+      return;
+    }
     this.mostrarConfigCustom = this.tipoNotificacao === 'custom';
     if (!this.mostrarConfigCustom) {
       this.dataHoraCustom = '';

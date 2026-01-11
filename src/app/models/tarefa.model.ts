@@ -6,8 +6,6 @@ export interface ConfiguracaoNotificacao {
   tipo: '30min' | '1hora' | '1dia' | 'custom';
   /** Data/hora customizada (apenas se tipo = 'custom') */
   dataHoraCustom?: Date;
-  /** Som do alarme: 'default', 'alarm', 'notification' */
-  somAlarme: 'default' | 'alarm' | 'notification';
 }
 
 /**

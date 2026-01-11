@@ -48,25 +48,28 @@ export class NotificacaoService {
 
     try {
       const status = await LocalNotifications.checkPermissions();
+      console.log('Status de permissão de notificações:', status);
       
       if (status.display === 'granted') {
         this.permissaoConcedida = true;
+        console.log('Permissão de notificações já concedida');
         return true;
       }
 
       // Solicita permissão
+      console.log('Solicitando permissão de notificações...');
       const request = await LocalNotifications.requestPermissions();
       this.permissaoConcedida = request.display === 'granted';
       
       if (this.permissaoConcedida) {
-        console.log('Permissão de notificações concedida');
+        console.log('✅ Permissão de notificações concedida');
       } else {
-        console.warn('Permissão de notificações negada');
+        console.warn('❌ Permissão de notificações negada. Status:', request.display);
       }
 
       return this.permissaoConcedida;
     } catch (error) {
-      console.error('Erro ao verificar permissão de notificações:', error);
+      console.error('❌ Erro ao verificar permissão de notificações:', error);
       return false;
     }
   }
@@ -164,10 +167,18 @@ export class NotificacaoService {
     if (notificacoes.length > 0) {
       try {
         await LocalNotifications.schedule({ notifications: notificacoes });
-        console.log(`Notificações agendadas para tarefa ${tarefa.id}:`, notificacoes.length);
+        console.log(`✅ Notificações agendadas para tarefa ${tarefa.id}:`, notificacoes.length);
+        console.log('Detalhes das notificações:', notificacoes.map(n => ({
+          id: n.id,
+          title: n.title,
+          schedule: n.schedule
+        })));
       } catch (error) {
-        console.error('Erro ao agendar notificações:', error);
+        console.error('❌ Erro ao agendar notificações:', error);
+        console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
       }
+    } else {
+      console.log(`⚠️ Nenhuma notificação a agendar para tarefa ${tarefa.id}`);
     }
   }
 
@@ -176,52 +187,71 @@ export class NotificacaoService {
    * @param tarefa - Tarefa com configuração personalizada
    */
   private async agendarNotificacaoPersonalizada(tarefa: Tarefa): Promise<void> {
-    if (!tarefa.configuracaoNotificacao || !tarefa.horaInicio) {
+    // Verifica se tem configuração de notificação
+    if (!tarefa.configuracaoNotificacao) {
+      console.log(`Sem configuração de notificação para tarefa ${tarefa.id}`);
       return;
     }
 
     const config = tarefa.configuracaoNotificacao;
-    const horaInicio = new Date(tarefa.horaInicio);
-    let dataNotificacao: Date;
+    let dataNotificacao: Date | undefined;
 
     // Calcula data/hora da notificação baseado no tipo
     switch (config.tipo) {
       case '30min':
-        dataNotificacao = new Date(horaInicio);
+        if (!tarefa.horaInicio) {
+          console.log(`Tipo "30min" sem horaInicio para tarefa ${tarefa.id} - não agendando`);
+          return;
+        }
+        dataNotificacao = new Date(tarefa.horaInicio);
         dataNotificacao.setMinutes(dataNotificacao.getMinutes() - 30);
         break;
       case '1hora':
-        dataNotificacao = new Date(horaInicio);
+        if (!tarefa.horaInicio) {
+          console.log(`Tipo "1hora" sem horaInicio para tarefa ${tarefa.id} - não agendando`);
+          return;
+        }
+        dataNotificacao = new Date(tarefa.horaInicio);
         dataNotificacao.setHours(dataNotificacao.getHours() - 1);
         break;
       case '1dia':
-        dataNotificacao = new Date(horaInicio);
+        if (!tarefa.horaInicio) {
+          console.log(`Tipo "1dia" sem horaInicio para tarefa ${tarefa.id} - não agendando`);
+          return;
+        }
+        dataNotificacao = new Date(tarefa.horaInicio);
         dataNotificacao.setDate(dataNotificacao.getDate() - 1);
         break;
       case 'custom':
-        if (!config.dataHoraCustom) {
+        if (!config.dataHoraCustom || config.dataHoraCustom === null || config.dataHoraCustom === undefined) {
+          console.log(`Tipo "custom" sem dataHoraCustom válido para tarefa ${tarefa.id} - não agendando`);
+          console.log(`Config completa:`, JSON.stringify(config, null, 2));
           return;
         }
         dataNotificacao = new Date(config.dataHoraCustom);
+        // Verifica se a data é válida após conversão
+        if (isNaN(dataNotificacao.getTime())) {
+          console.log(`Tipo "custom" com dataHoraCustom inválido para tarefa ${tarefa.id} - não agendando`);
+          console.log(`dataHoraCustom valor:`, config.dataHoraCustom);
+          console.log(`dataHoraCustom tipo:`, typeof config.dataHoraCustom);
+          return;
+        }
         break;
       default:
-        // Fallback para 30min
-        dataNotificacao = new Date(horaInicio);
-        dataNotificacao.setMinutes(dataNotificacao.getMinutes() - 30);
+        console.log(`Tipo de notificação desconhecido "${config.tipo}" para tarefa ${tarefa.id} - não agendando`);
+        return;
+    }
+
+    // Verifica se dataNotificacao foi definida corretamente
+    if (!dataNotificacao || isNaN(dataNotificacao.getTime())) {
+      console.log(`Data de notificação inválida para tarefa ${tarefa.id} - não agendando`);
+      return;
     }
 
     // Verifica se a data de notificação já passou
     if (dataNotificacao < new Date()) {
       console.log(`Data de notificação já passou para tarefa ${tarefa.id}`);
       return;
-    }
-
-    // Determina som do alarme
-    let sound: string = 'default';
-    if (config.somAlarme === 'alarm') {
-      sound = 'alarm';
-    } else if (config.somAlarme === 'notification') {
-      sound = 'notification';
     }
 
     const id = this.gerarIdNotificacao(tarefa.id, 0);
@@ -231,7 +261,7 @@ export class NotificacaoService {
       title: tarefa.titulo,
       body: `Tarefa: ${tarefa.titulo}`,
       schedule: { at: dataNotificacao },
-      sound: sound,
+      sound: 'default',
       attachments: undefined,
       actionTypeId: '',
       extra: {
@@ -242,9 +272,12 @@ export class NotificacaoService {
 
     try {
       await LocalNotifications.schedule({ notifications: [notificacao] });
-      console.log(`Notificação personalizada agendada para tarefa ${tarefa.id} em ${dataNotificacao.toISOString()}`);
+      console.log(`✅ Notificação personalizada agendada para tarefa ${tarefa.id}`);
+      console.log(`Data/hora agendada: ${dataNotificacao.toLocaleString('pt-PT')}`);
+      console.log(`Tipo: ${config.tipo}`);
     } catch (error) {
-      console.error('Erro ao agendar notificação personalizada:', error);
+      console.error('❌ Erro ao agendar notificação personalizada:', error);
+      console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
     }
   }
 
@@ -344,18 +377,22 @@ export class NotificacaoService {
    * Gera um ID único para a notificação baseado no ID da tarefa e dias antes
    * @param tarefaId - ID da tarefa
    * @param diasAntes - Dias antes da data limite
-   * @returns ID numérico da notificação
+   * @returns ID numérico da notificação (int válido Java: máximo 2147483647)
    */
   private gerarIdNotificacao(tarefaId: string, diasAntes: number): number {
-    // Usa hash simples do ID da tarefa + dias antes
+    // Usa hash simples do ID da tarefa
     let hash = 0;
     for (let i = 0; i < tarefaId.length; i++) {
       const char = tarefaId.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash; // Convert to 32bit integer
     }
-    // Combina com dias antes (multiplica por 1000 para evitar colisões)
-    return Math.abs(hash * 1000 + diasAntes);
+    // Usa apenas uma parte do hash (mod 100000 para garantir números menores)
+    // Multiplica por 10 e adiciona diasAntes (0-9) para garantir unicidade
+    const hashLimitado = Math.abs(hash) % 100000; // Limita a 100000
+    const id = hashLimitado * 10 + (diasAntes % 10); // Resultado máximo: 999999 * 10 + 9 = 9999999
+    // Garante que está dentro do limite de int Java (máximo 2147483647)
+    return Math.min(Math.max(id, 1), 2147483647);
   }
 }
 

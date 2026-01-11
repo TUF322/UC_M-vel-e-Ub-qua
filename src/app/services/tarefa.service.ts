@@ -171,6 +171,9 @@ export class TarefaService {
       await this.storageService.setTarefas(tarefas);
     }
 
+    // Reagenda notificações para a tarefa atualizada
+    await this.notificacaoService.agendarNotificacoesTarefa(tarefaAtualizada);
+
     return tarefaAtualizada;
   }
 
@@ -286,12 +289,28 @@ export class TarefaService {
    * Serializa uma tarefa
    */
   private serializeTarefa(tarefa: Tarefa): any {
+    // Valida configuracaoNotificacao antes de serializar
+    let configuracaoNotificacao: string | undefined;
+    if (tarefa.configuracaoNotificacao) {
+      // Se tipo é "custom" mas dataHoraCustom é null/undefined/inválido, não serializa
+      if (tarefa.configuracaoNotificacao.tipo === 'custom') {
+        const dataCustom = tarefa.configuracaoNotificacao.dataHoraCustom;
+        if (dataCustom && dataCustom instanceof Date && !isNaN(dataCustom.getTime())) {
+          configuracaoNotificacao = JSON.stringify(tarefa.configuracaoNotificacao);
+        }
+        // Se tipo é "custom" mas dataHoraCustom é inválido, não serializa (retorna undefined)
+      } else {
+        // Para outros tipos, serializa normalmente
+        configuracaoNotificacao = JSON.stringify(tarefa.configuracaoNotificacao);
+      }
+    }
+
     return {
       ...tarefa,
       dataLimite: tarefa.dataLimite.toISOString(),
       horaInicio: tarefa.horaInicio ? tarefa.horaInicio.toISOString() : undefined,
       horaFim: tarefa.horaFim ? tarefa.horaFim.toISOString() : undefined,
-      configuracaoNotificacao: tarefa.configuracaoNotificacao ? JSON.stringify(tarefa.configuracaoNotificacao) : undefined,
+      configuracaoNotificacao: configuracaoNotificacao,
       dataCriacao: tarefa.dataCriacao.toISOString()
     };
   }
@@ -314,9 +333,29 @@ export class TarefaService {
     }
     if (tarefa.configuracaoNotificacao) {
       try {
-        result.configuracaoNotificacao = typeof tarefa.configuracaoNotificacao === 'string' 
+        const config = typeof tarefa.configuracaoNotificacao === 'string' 
           ? JSON.parse(tarefa.configuracaoNotificacao) 
           : tarefa.configuracaoNotificacao;
+
+        // Valida configuração antes de atribuir
+        if (config && config.tipo) {
+          // Se tipo é "custom" mas dataHoraCustom é null/undefined/inválido, não atribui
+          if (config.tipo === 'custom') {
+            if (config.dataHoraCustom) {
+              const dataCustom = new Date(config.dataHoraCustom);
+              // Só atribui se a data for válida
+              if (!isNaN(dataCustom.getTime())) {
+                config.dataHoraCustom = dataCustom;
+                result.configuracaoNotificacao = config;
+              }
+              // Se dataHoraCustom é inválido, não atribui (result.configuracaoNotificacao fica undefined)
+            }
+            // Se tipo é "custom" mas dataHoraCustom é null/undefined, não atribui
+          } else {
+            // Para outros tipos, atribui normalmente
+            result.configuracaoNotificacao = config;
+          }
+        }
       } catch (e) {
         console.warn('Erro ao deserializar configuracaoNotificacao:', e);
       }
@@ -350,9 +389,31 @@ export class TarefaService {
     if (tarefa.configuracao_notificacao || tarefa.configuracaoNotificacao) {
       try {
         const configStr = tarefa.configuracao_notificacao || tarefa.configuracaoNotificacao;
-        result.configuracaoNotificacao = typeof configStr === 'string' 
-          ? JSON.parse(configStr) 
-          : configStr;
+        if (configStr) {
+          const config = typeof configStr === 'string' 
+            ? JSON.parse(configStr)
+            : configStr;
+
+          // Valida configuração antes de atribuir
+          if (config && config.tipo) {
+            // Se tipo é "custom" mas dataHoraCustom é null/undefined/inválido, não atribui
+            if (config.tipo === 'custom') {
+              if (config.dataHoraCustom) {
+                const dataCustom = new Date(config.dataHoraCustom);
+                // Só atribui se a data for válida
+                if (!isNaN(dataCustom.getTime())) {
+                  config.dataHoraCustom = dataCustom;
+                  result.configuracaoNotificacao = config;
+                }
+                // Se dataHoraCustom é inválido, não atribui (result.configuracaoNotificacao fica undefined)
+              }
+              // Se tipo é "custom" mas dataHoraCustom é null/undefined, não atribui
+            } else {
+              // Para outros tipos, atribui normalmente
+              result.configuracaoNotificacao = config;
+            }
+          }
+        }
       } catch (e) {
         console.warn('Erro ao deserializar configuracaoNotificacao do SQLite:', e);
       }

@@ -36,6 +36,11 @@ const config: CapacitorConfig = {
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false
+    },
+    LocalNotifications: {
+      smallIcon: 'ic_stat_notification',
+      iconColor: '#9c27b0',
+      sound: 'beep.wav'
     }
   }
 };
